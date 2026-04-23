@@ -15,9 +15,6 @@ export default function Sidebar(){
                 <nav>
                     <ul>
                         <li><Link to="/dashboard">Dashboard</Link></li>
-                            <ul>
-                                <li><Link to="/analytics">Analytics</Link></li>
-                            </ul>
                         <li>Tables</li>
                             <ul>
                                 <li><Link to="/drivers">Drivers</Link></li>
