@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
 import DriversPage from "./pages/DriversPage";
@@ -10,11 +10,11 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<LoginPage/>}/>
-        <Route path="/dashboard" element={<Dashboard/>}/>
-        <Route path="/drivers" element={<DriversPage/>}/>
-        <Route path="/vehicles" element={<VehiclesPage/>}/>
-        <Route path="/violations" element={<ViolationsPage/>}/>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/drivers" element={<ProtectedRoute><DriversPage /></ProtectedRoute>} />
+        <Route path="/vehicles" element={<ProtectedRoute><VehiclesPage /></ProtectedRoute>} />
+        <Route path="/violations" element={<ProtectedRoute><ViolationsPage /></ProtectedRoute>} />
       </Routes>
     </>
   );

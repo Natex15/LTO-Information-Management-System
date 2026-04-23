@@ -3,20 +3,36 @@ import Sidebar from "../components/Sidebar";
 
 export default function DriversPage() {
     const [drivers, setDrivers] = useState([]);
+    const [error, setError] = useState(null);
+
     useEffect(() => {
-        // Fetch data from our Express backend
-        fetch('http://localhost:5000/api/drivers')
-            .then(response => response.json())
+        const token = localStorage.getItem("token");
+
+        fetch('/api/drivers', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+                return response.json();
+            })
             .then(data => setDrivers(data))
-            .catch(error => console.error('Error fetching data:', error));
+            .catch(err => {
+                console.error('Error fetching data:', err);
+                setError(err.message);
+            });
     }, []);
+
     return (
         <>
             <Sidebar />
             <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
                 <h1>LTO Information Management System</h1>
                 <h2>Registered Drivers</h2>
-                {drivers.length === 0 ? (
+                {error ? (
+                    <p style={{ color: 'red' }}>Failed to load drivers: {error}</p>
+                ) : drivers.length === 0 ? (
                     <p>No drivers found. Try adding some via Supabase SQL Editor!</p>
                 ) : (
                     <table border="1" cellPadding="10">
