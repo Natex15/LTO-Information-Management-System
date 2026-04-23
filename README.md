@@ -1,4 +1,4 @@
-# 🚗 LTO Information Management System
+# LTO Information Management System
 
 A full-stack web application for managing Land Transportation Office (LTO) driver records. Built with **React + Vite** on the frontend and **Node.js + Express** on the backend, connected to a **Supabase (PostgreSQL)** database.
 
