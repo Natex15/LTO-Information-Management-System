@@ -1,0 +1,24 @@
+.sidebar-toggle {
+    background-color: transparent;
+    border-color: transparent;
+    color: white;
+    font-size: 25px;
+}
+
+.sidebar{
+    display: none;
+    color: white;
+}
+
+.open {
+    display: block;
+    height: 100%;
+    width: 160px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #1e1e1e;
+    overflow-x: hidden;
+}
+
