@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Sidebar from "../components/Sidebar";
+import './DriversPage.css';
 
 export default function DriversPage() {
     const [drivers, setDrivers] = useState([]);
@@ -28,33 +29,42 @@ export default function DriversPage() {
         <>
             <Sidebar />
             <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-                <h1>LTO Information Management System</h1>
-                <h2>Registered Drivers</h2>
+                <div className="headerRow">
+                    <h2 style={{ marginBottom: "10px", userSelect: "none", fontSize: "30px", marginLeft: "11px", color: "#FFFFFF" }}>Registered Drivers</h2>
+                    <div className="searchRow">
+                    <button className="sortBtn">Sort by</button>
+
+                        <input type="text" className="searchBar" placeholder="Search by driver name..."/></div>
+                </div>
                 {error ? (
                     <p style={{ color: 'red' }}>Failed to load drivers: {error}</p>
                 ) : drivers.length === 0 ? (
                     <p>No drivers found. Try adding some via Supabase SQL Editor!</p>
                 ) : (
-                    <table border="1" cellPadding="10">
-                        <thead>
-                            <tr>
-                                <th>License Number</th>
-                                <th>Full Name</th>
-                                <th>Status</th>
-                                <th>License Type</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {drivers.map(driver => (
-                                <tr key={driver.license_number}>
-                                    <td>{driver.license_number}</td>
-                                    <td>{driver.full_name}</td>
-                                    <td>{driver.license_status}</td>
-                                    <td>{driver.license_type}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <div className = "driverTableContainer">
+                        <div className = "driversTable">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>License Number</th>
+                                        <th>Full Name</th>
+                                        <th>Status</th>
+                                        <th>License Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {drivers.map(driver => (
+                                        <tr key={driver.license_number}>
+                                            <td>{driver.license_number}</td>
+                                            <td>{driver.full_name}</td>
+                                            <td>{driver.license_status}</td>
+                                            <td>{driver.license_type}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 )}
             </div>
         </>
