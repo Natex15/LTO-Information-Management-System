@@ -3,22 +3,35 @@
     border-color: transparent;
     color: white;
     font-size: 25px;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 9999;
+    cursor: pointer;
 }
 
 .sidebar{
-    display: none;
-    color: white;
-}
-
-.open {
     display: block;
-    height: 100%;
-    width: 160px;
+    width: 0;
+    color: white;
     position: fixed;
-    z-index: 1;
     top: 0;
+    bottom: 0;
     left: 0;
     background-color: #1e1e1e;
     overflow-x: hidden;
+    border-right: 2px solid #181818;
+    z-index: 2;
+}
+
+.open {
+    width: 160px;
+    border-right: 2px solid #181818;
+    padding-top: 50px;
+}
+
+.main-content {
+    padding-left: 60px;
+    padding-top: 10px;
 }
 
