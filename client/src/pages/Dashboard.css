@@ -1,0 +1,15 @@
+.header {
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    justify-content: space-between;
+}
+
+.greeting {
+    text-decoration: underline;
+    text-decoration-color: gray;
+    color: white;
+}
+
+#logout-button {
+    color: gray;
+}
