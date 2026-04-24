@@ -15,22 +15,19 @@ export default function Sidebar(){
                 <nav>
                     <ul>
                         <li><Link to="/dashboard">Dashboard</Link></li>
-                        <li>Tables</li>
+                        <li>
+                            Tables
                             <ul>
                                 <li><Link to="/drivers">Drivers</Link></li>
                                 <li><Link to="/vehicles">Vehicles</Link></li>
                                 <li><Link to="/violations">Violations</Link></li>
                             </ul>
+                        </li>
                     </ul>
                 </nav>
             </aside>
             <main className={`main-content ${isOpen ? 'sidebar-open' : ''}`}>
-                <div className="header">
-                    <div className="greeting">
-                        <h1>Welcome Admin!</h1>
-                    </div>
-                    <Link id="logout-button">Logout</Link>
-                </div>
+                <Link to="/" id="logout-button">Logout</Link>
             </main>
         </div>
         </>

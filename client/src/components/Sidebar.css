@@ -35,3 +35,13 @@
     padding-top: 10px;
 }
 
+#logout-button {
+  margin-left: auto;
+  margin-top: 20px;
+  margin-right: 40px; 
+}
+
+.main-content {
+  display: flex;
+  align-items: center;
+}

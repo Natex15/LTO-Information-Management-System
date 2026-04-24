@@ -1,0 +1,87 @@
+.driverTableContainer {
+  width: 100%;
+  background-color: #222222;
+  border-radius: 25px;
+  border: 1px solid #FFFFFF33;
+  overflow: hidden;
+}
+
+
+.driversTable table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  user-select: none;
+}
+
+.driversTable th,
+.driversTable td {
+  width: 25%;
+  padding: 16px 20px;
+  text-align: center;
+  color: #FFFFFF;
+}
+.driversTable thead th {
+  background-color: #2e2e2e;
+}
+
+.driversTable tbody tr td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.driversTable tr:hover {
+    background-color: #181818;
+    cursor: pointer;
+}
+
+.driversTable thead th:first-child {
+  border-top-left-radius: 25px;
+}
+
+.driversTable thead th:last-child {
+  border-top-right-radius: 25px;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.searchRow {
+  margin-top: 25px;
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sortBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.sortBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
+.searchBar {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.searchBar::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}

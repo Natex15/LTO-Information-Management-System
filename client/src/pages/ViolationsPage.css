@@ -1,0 +1,98 @@
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sortBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+
+.searchBar {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.searchBar::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.vehicleTableContainer {
+  width: 100%;
+  background-color: #222222;
+  border-radius: 25px;
+  border: 1px solid #FFFFFF33;
+  overflow: hidden;
+}
+
+.vehicleTable table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.vehicleTable th,
+.vehicleTable td {
+  padding: 16px 20px;
+  text-align: center;
+  font-size: 18px;
+  color: #FFFFFF;
+  word-wrap: break-word;
+}
+
+.vehicleTable thead th {
+  background-color: #2e2e2e;
+}
+
+.vehicleTable thead th:first-child {
+  border-top-left-radius: 25px;
+}
+
+.vehicleTable thead th:last-child {
+  border-top-right-radius: 25px;
+}
+
+.vehicleTable tbody tr td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vehicleTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.vehicleTable td,
+.vehicleTable th {
+  user-select: none;
+}
+
+@media (max-width: 1200px) {
+  .vehicleTable th,
+  .vehicleTable td {
+    padding: 12px 14px;
+    font-size: 16px;
+  }
+
+  .searchBar {
+    width: 220px;
+  }
+}

@@ -4,7 +4,12 @@ import './Dashboard.css';
 export default function Dashboard() {
     return (
     <>
-        <Sidebar/>
+        <Sidebar />
+        <div className="header">
+            <div className="greeting">
+                <h1>Welcome Admin!</h1>
+            </div>
+        </div>
     </>
     );
 }
