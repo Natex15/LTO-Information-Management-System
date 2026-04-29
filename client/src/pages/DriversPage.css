@@ -67,7 +67,52 @@
     user-select: none;
 }
 
+.addBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.addBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
 .sortBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
+.deleteBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.deleteBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
+.updateBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.updateBtn:hover {
     border: 1px solid #FFFFFF;
 }
 
@@ -84,4 +129,96 @@
 
 .searchBar::placeholder {
   color: rgba(255, 255, 255, 0.6);
+}
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 999;
+}
+
+.modalBox {
+    width: 500px;
+    background-color: #222222;
+    border: 1px solid #FFFFFF33;
+    border-radius: 25px;
+    padding: 25px;
+    color: #FFFFFF;
+    user-select: none;
+}
+
+.modalBox h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    text-align: center;
+}
+
+.modalBox form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.modalBox input,
+.modalBox select {
+    border: 2px solid #FFFFFF33;
+    background-color: #2e2e2e;
+    color: #FFFFFF;
+    padding-left: 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 12px;
+    border-radius: 10px;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.modalBox input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.modalBox input:focus,
+.modalBox select:focus {
+    border: 2px solid #FFFFFF;
+}
+
+.modalBox select {
+    cursor: pointer;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.saveBtn,
+.cancelBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 14px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-right: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.saveBtn:hover,
+.cancelBtn:hover {
+    border: 1px solid #FFFFFF;
+    background-color: #181818;
+}
+
+.selectedRow {
+    background-color: #353535 !important;
 }
