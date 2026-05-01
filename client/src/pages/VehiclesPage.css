@@ -1,3 +1,47 @@
+.vehicleTableContainer {
+  width: 100%;
+  background-color: #222222;
+  border-radius: 25px;
+  border: 1px solid #FFFFFF33;
+  overflow: hidden;
+}
+
+
+.vehicleTable table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  user-select: none;
+}
+
+.vehicleTable th,
+.vehicleTable td {
+  width: 25%;
+  padding: 16px 20px;
+  text-align: center;
+  color: #FFFFFF;
+}
+.vehicleTable thead th {
+  background-color: #2e2e2e;
+}
+
+.vehicleTable tbody tr td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vehicleTable tr:hover {
+    background-color: #181818;
+    cursor: pointer;
+}
+
+.vehicleTable thead th:first-child {
+  border-top-left-radius: 25px;
+}
+
+.vehicleTable thead th:last-child {
+  border-top-right-radius: 25px;
+}
+
 .headerRow {
   display: flex;
   justify-content: space-between;
@@ -5,6 +49,8 @@
 }
 
 .searchRow {
+  margin-top: 25px;
+  margin-right: 15px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -21,6 +67,54 @@
     user-select: none;
 }
 
+.addBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.addBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
+.sortBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
+.deleteBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.deleteBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
+.updateBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.updateBtn:hover {
+    border: 1px solid #FFFFFF;
+}
 
 .searchBar {
     border: 2px solid #FFFFFF33;
@@ -34,65 +128,97 @@
 }
 
 .searchBar::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.vehicleTableContainer {
-  width: 100%;
-  background-color: #222222;
-  border-radius: 25px;
-  border: 1px solid #FFFFFF33;
-  overflow: hidden;
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 999;
 }
 
-.vehicleTable table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
+.modalBox {
+    width: 500px;
+    background-color: #222222;
+    border: 1px solid #FFFFFF33;
+    border-radius: 25px;
+    padding: 25px;
+    color: #FFFFFF;
+    user-select: none;
 }
 
-.vehicleTable th,
-.vehicleTable td {
-  padding: 16px 20px;
-  text-align: center;
-  font-size: 18px;
-  color: #FFFFFF;
-  word-wrap: break-word;
+.modalBox h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    text-align: center;
 }
 
-.vehicleTable thead th {
-  background-color: #2e2e2e;
+.modalBox form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
 
-.vehicleTable thead th:first-child {
-  border-top-left-radius: 25px;
+.modalBox input,
+.modalBox select {
+    border: 2px solid #FFFFFF33;
+    background-color: #2e2e2e;
+    color: #FFFFFF;
+    padding-left: 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 12px;
+    border-radius: 10px;
+    outline: none;
+    transition: 0.2s ease;
 }
 
-.vehicleTable thead th:last-child {
-  border-top-right-radius: 25px;
+.modalBox input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
 }
 
-.vehicleTable tbody tr td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+.modalBox input:focus,
+.modalBox select:focus {
+    border: 2px solid #FFFFFF;
 }
 
-.vehicleTable tbody tr:last-child td {
-  border-bottom: none;
+.modalBox select {
+    cursor: pointer;
 }
 
-.vehicleTable td,
-.vehicleTable th {
-  user-select: none;
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
 }
 
-@media (max-width: 1200px) {
-  .vehicleTable th,
-  .vehicleTable td {
-    padding: 12px 14px;
-    font-size: 16px;
-  }
+.saveBtn,
+.cancelBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 14px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-right: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
 
-  .searchBar {
-    width: 220px;
-  }
+.saveBtn:hover,
+.cancelBtn:hover {
+    border: 1px solid #FFFFFF;
+    background-color: #181818;
+}
+
+.selectedRow {
+    background-color: #353535 !important;
 }

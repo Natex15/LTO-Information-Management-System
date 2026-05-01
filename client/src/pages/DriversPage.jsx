@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Sidebar from "../components/Sidebar";
 import './DriversPage.css';
-import AddDriverModal from "../components/AddModal";
+import AddDriverModal from "../components/AddDriverModal";
 
 export default function DriversPage() {
     const [drivers, setDrivers] = useState([]);

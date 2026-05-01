@@ -15,11 +15,12 @@ export async function addVehicle(req, res) {
     const {plate_number,engine_number,chassis_number,color,model,year,vehicle_type,license_number} = req.body;
 
     const result = await pool.query(
-      `INSERT INTO vehicle (plate_number,engine_number,chassis_number,color,model,year,vehicle_type,license_number) 
+      `INSERT INTO vehicle (plate_number,engine_number,chassis_number,color,model,year,vehicle_type,license_number)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [plate_number,engine_number,chassis_number,color,model,year,vehicle_type,license_number]
     );
 
-
+    res.json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

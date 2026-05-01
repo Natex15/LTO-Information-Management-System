@@ -1,10 +1,76 @@
 import { useEffect, useState } from 'react';
 import Sidebar from "../components/Sidebar";
 import './VehiclesPage.css';
+import AddVehicleModal from "../components/AddVehicleModal";
 
 export default function VehiclesPage() {
     const [vehicles, setVehicles] = useState([]);
     const [error, setError] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedVehicle, setSelectedVehicle] = useState(null);
+    const [modalMode, setModalMode] = useState("add");
+
+    const [formData, setFormData] = useState({
+        plate_number: "",
+        engine_number: "",
+        chassis_number: "",
+        color: "",
+        model: "",
+        year: "",
+        vehicle_type: "",
+        license_number: ""
+    });
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const handleCreateVehicle = async (e) => {
+        e.preventDefault();
+
+        const token = localStorage.getItem("token");
+
+        try {
+            const response = await fetch(
+                "/api/vehicles",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to create vehicle");
+            }
+
+            const data = await response.json();
+
+            setVehicles(prev => [...prev, data]);
+
+            setShowModal(false);
+
+            setFormData({
+                plate_number: "",
+                engine_number: "",
+                chassis_number: "",
+                color: "",
+                model: "",
+                year: "",
+                vehicle_type: "",
+                license_number: ""
+            });
+
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -18,14 +84,105 @@ export default function VehiclesPage() {
                 if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
                 return response.json();
             })
-            .then(data => {
-                setVehicles(data)
-                })
+            .then(data => setVehicles(data))
             .catch(err => {
-                console.error('Error fetching vehicles:', err);
+                console.error('Error fetching data:', err);
                 setError(err.message);
             });
     }, []);
+
+    const handleDeleteVehicle = async () => {
+        if (!selectedVehicle) {
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+
+        try {
+            const response = await fetch(
+                `/api/vehicles/${selectedVehicle.plate_number}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to delete vehicle");
+            }
+
+            setVehicles(prev =>
+                prev.filter(vehicle => vehicle.plate_number !== selectedVehicle.plate_number)
+            );
+
+            setSelectedVehicle(null);
+
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleUpdateVehicle = async () => {
+        if (!selectedVehicle) {
+            return;
+        }
+
+        setModalMode("update");
+
+        setFormData({
+            plate_number: selectedVehicle.plate_number,
+            engine_number: selectedVehicle.engine_number,
+            chassis_number: selectedVehicle.chassis_number,
+            color: selectedVehicle.color,
+            model: selectedVehicle.model,
+            year: selectedVehicle.year,
+            vehicle_type: selectedVehicle.vehicle_type,
+            license_number: selectedVehicle.license_number
+        });
+
+        setShowModal(true);
+    };
+
+    const handlePatchVehicle = async (e) => {
+        e.preventDefault();
+
+        if (!selectedVehicle) {
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+
+        try {
+            const response = await fetch(`/api/vehicles/${selectedVehicle.plate_number}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to update vehicle: ${response.status}`);
+            }
+
+            const updatedVehicle = await response.json();
+
+            setVehicles(prev =>
+                prev.map(vehicle =>
+                    vehicle.plate_number === selectedVehicle.plate_number ? updatedVehicle : vehicle)
+            );
+
+            setSelectedVehicle(null);
+            setModalMode("add");
+            setShowModal(false);
+
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     return (
         <>
@@ -37,12 +194,21 @@ export default function VehiclesPage() {
                     </h2>
                     <div className="searchRow">
                         <button className="sortBtn">Sort by</button>
-
                         <input
                             type="text"
                             className="searchBar"
                             placeholder="Search by plate number..."
                         />
+                        <button
+                            className="addBtn"
+                            onClick={() => {
+                                setModalMode("add");
+                                setShowModal(true);
+                            }}
+                        >Add Vehicle
+                        </button>
+                        <button className="deleteBtn" onClick={handleDeleteVehicle}> Delete Vehicle</button>
+                        <button className="updateBtn" onClick={handleUpdateVehicle}>Update Vehicle</button>
                     </div>
                 </div>
 
@@ -68,7 +234,11 @@ export default function VehiclesPage() {
                                 </thead>
                                 <tbody>
                                     {vehicles.map(vehicle => (
-                                        <tr key={vehicle.plate_number}>
+                                        <tr
+                                            key={vehicle.plate_number}
+                                            onClick={() => setSelectedVehicle(vehicle)}
+                                            className={selectedVehicle?.plate_number === vehicle.plate_number ? "selectedRow" : ""}
+                                        >
                                             <td>{vehicle.plate_number}</td>
                                             <td>{vehicle.engine_number}</td>
                                             <td>{vehicle.chassis_number}</td>
@@ -85,6 +255,8 @@ export default function VehiclesPage() {
                     </div>
                 )}
             </div>
+
+            <AddVehicleModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateVehicle={modalMode === "add" ? handleCreateVehicle : handlePatchVehicle} />
         </>
     );
 }
