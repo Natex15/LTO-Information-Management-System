@@ -8,24 +8,26 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { DataProvider } from "./context/DataContext";
 
 function App() {
-    return (
-            <Routes>
-                <Route path="/" element={<LoginPage />} />
-                
-                <Route element={
-                    <ProtectedRoute>
-                        <DataProvider>
-                            <Outlet />
-                        </DataProvider>
-                    </ProtectedRoute>
-                }>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/drivers" element={<DriversPage />} />
-                    <Route path="/vehicles" element={<VehiclesPage />} />
-                    <Route path="/violations" element={<ViolationsPage />} />
-                </Route>
-            </Routes>
-    );
+  return (
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+
+      <Route
+        element={
+          <ProtectedRoute>
+            <DataProvider>
+              <Outlet />
+            </DataProvider>
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/drivers" element={<DriversPage />} />
+        <Route path="/vehicles" element={<VehiclesPage />} />
+        <Route path="/violations" element={<ViolationsPage />} />
+      </Route>
+    </Routes>
+  );
 }
 
 export default App;
