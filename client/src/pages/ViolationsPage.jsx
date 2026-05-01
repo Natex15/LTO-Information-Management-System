@@ -55,6 +55,7 @@ export default function ViolationsPage() {
                                 <thead>
                                     <tr>
                                         <th>Violation ID</th>
+                                        <th>Types</th>
                                         <th>Status</th>
                                         <th>Fine Amount</th>
                                         <th>Officer</th>
@@ -68,6 +69,7 @@ export default function ViolationsPage() {
                                     {violations.map((violation) => (
                                         <tr key={violation.violation_id}>
                                             <td>{violation.violation_id}</td>
+                                            <td>{violation?.violation_types?.length > 0 ? violation.violation_types.join(', ') : 'N/A'}</td>
                                             <td>{violation.violation_status}</td>
                                             <td>{violation.corresponding_fine_amount}</td>
                                             <td>{violation.apprehending_officer}</td>
