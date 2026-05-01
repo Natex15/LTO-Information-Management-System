@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Sidebar from "../components/Sidebar";
 import './VehiclesPage.css';
 import AddVehicleModal from "../components/AddVehicleModal";
+import { useData } from "../context/DataContext";
 
 export default function VehiclesPage() {
-    const [vehicles, setVehicles] = useState([]);
-    const [error, setError] = useState(null);
+    const { vehicles, setVehicles, loading, error } = useData();
     const [showModal, setShowModal] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [modalMode, setModalMode] = useState("add");
@@ -71,25 +71,6 @@ export default function VehiclesPage() {
             console.error(error);
         }
     };
-
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-
-        fetch('/api/vehicles', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-                return response.json();
-            })
-            .then(data => setVehicles(data))
-            .catch(err => {
-                console.error('Error fetching data:', err);
-                setError(err.message);
-            });
-    }, []);
 
     const handleDeleteVehicle = async () => {
         if (!selectedVehicle) {
@@ -214,6 +195,8 @@ export default function VehiclesPage() {
 
                 {error ? (
                     <p style={{ color: 'red' }}>Failed to load vehicles: {error}</p>
+                ) : loading ? (
+                    <p>Loading vehicles...</p>
                 ) : vehicles.length === 0 ? (
                     <p>No vehicles found.</p>
                 ) : (

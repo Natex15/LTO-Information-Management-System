@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Sidebar from "../components/Sidebar";
 import './DriversPage.css';
 import AddDriverModal from "../components/AddDriverModal";
 import DriverSummaryModal from "../components/DriverSummaryModal";
+import { useData } from "../context/DataContext";
 
 export default function DriversPage() {
-    const [drivers, setDrivers] = useState([]);
-    const [error, setError] = useState(null);
+    const { drivers, setDrivers, loading, error } = useData();
     const [showModal, setShowModal] = useState(false);
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [selectedDriver, setSelectedDriver] = useState(null);
@@ -82,25 +82,6 @@ export default function DriversPage() {
         }
 
     };
-
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-
-        fetch('/api/drivers', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-                return response.json();
-            })
-            .then(data => setDrivers(data))
-            .catch(err => {
-                console.error('Error fetching data:', err);
-                setError(err.message);
-            });
-    }, []);
 
     const handleDeleteDriver = async () => {
 
@@ -223,6 +204,8 @@ export default function DriversPage() {
                 </div>
                 {error ? (
                     <p style={{ color: 'red' }}>Failed to load drivers: {error}</p>
+                ) : loading ? (
+                    <p>Loading drivers...</p>
                 ) : drivers.length === 0 ? (
                     <p>No drivers found. Try adding some via Supabase SQL Editor!</p>
                 ) : (

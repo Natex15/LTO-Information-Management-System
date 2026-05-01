@@ -1,29 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Sidebar from "../components/Sidebar";
 import './VehiclesPage.css';
+import { useData } from "../context/DataContext";
 
 export default function ViolationsPage() {
-    const [violations, setViolations] = useState([]);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-
-        fetch('/api/violations', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-            .then(response => {
-                if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-                return response.json();
-            })
-            .then(data => setViolations(data))
-            .catch(err => {
-                console.error('Error fetching violations:', err);
-                setError(err.message);
-            });
-    }, []);
+    const { violations, loading, error } = useData();
 
     return (
         <>
@@ -46,6 +27,8 @@ export default function ViolationsPage() {
 
                 {error ? (
                     <p style={{ color: 'red' }}>Failed to load violations: {error}</p>
+                ) : loading ? (
+                    <p>Loading violations...</p>
                 ) : violations.length === 0 ? (
                     <p>No violations found.</p>
                 ) : (
