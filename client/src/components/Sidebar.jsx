@@ -1,10 +1,17 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
 export default function Sidebar(){
     const [isOpen, setIsOpen] = useState(false)
+    const navigate = useNavigate()
     const toggleSidebar = () => setIsOpen(!isOpen)
+
+    const handleLogout = () => {
+        localStorage.removeItem("token")
+        navigate("/")
+    }
+
     return(
         <>
         <div className="app">
@@ -27,7 +34,7 @@ export default function Sidebar(){
                 </nav>
             </aside>
             <main className={`main-content ${isOpen ? 'sidebar-open' : ''}`}>
-                <Link to="/" id="logout-button">Logout</Link>
+                <button onClick={handleLogout} id="logout-button" style={{color: 'black'}}>Logout</button>
             </main>
         </div>
         </>
