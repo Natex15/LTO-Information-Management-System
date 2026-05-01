@@ -113,16 +113,16 @@ export default function DriverSummaryModal({ showModal, setShowModal, driver }) 
                                         <thead>
                                             <tr>
                                                 <th>Date</th>
-                                                <th>Type</th>
-                                                <th>Description</th>
+                                                <th>Status</th>
+                                                <th>Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {violations.map((violation, idx) => (
                                                 <tr key={idx}>
-                                                    <td>{formatDate(violation?.violation_date)}</td>
-                                                    <td>{violation?.violation_type || 'N/A'}</td>
-                                                    <td>{violation?.description || 'N/A'}</td>
+                                                    <td>{formatDate(violation?.date)}</td>
+                                                    <td>{violation?.violation_status || 'N/A'}</td>
+                                                    <td>{violation?.corresponding_fine_amount || 'N/A'}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
