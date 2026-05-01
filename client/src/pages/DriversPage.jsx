@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import Sidebar from "../components/Sidebar";
 import './DriversPage.css';
 import AddDriverModal from "../components/AddDriverModal";
+import DriverSummaryModal from "../components/DriverSummaryModal";
 
 export default function DriversPage() {
     const [drivers, setDrivers] = useState([]);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [selectedDriver, setSelectedDriver] = useState(null);
     const [modalMode, setModalMode] = useState("add");
 
@@ -242,9 +244,10 @@ export default function DriversPage() {
                                 </thead>
                                 <tbody>
                                     {drivers.map(driver => (
-                                        <tr 
+                                        <tr
                                         key={driver.license_number}
                                         onClick={() => setSelectedDriver(driver)}
+                                        onDoubleClick={() => setShowSummaryModal(true)}
                                         className={selectedDriver?.license_number === driver.license_number ? "selectedRow" : ""}
                                         >
                                             <td>{driver.license_number}</td>
@@ -266,6 +269,7 @@ export default function DriversPage() {
             </div>
 
             <AddDriverModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateDriver={modalMode === "add" ? handleCreateDriver : handlePatchDriver}/>
+            <DriverSummaryModal showModal={showSummaryModal} setShowModal={setShowSummaryModal} driver={selectedDriver} />
         </>
     );
 }

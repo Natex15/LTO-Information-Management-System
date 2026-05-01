@@ -222,3 +222,126 @@
 .selectedRow {
     background-color: #353535 !important;
 }
+
+.summaryModalBox {
+    width: 700px;
+    max-height: 80vh;
+    background-color: #222222;
+    border: 1px solid #FFFFFF33;
+    border-radius: 25px;
+    padding: 25px;
+    color: #FFFFFF;
+    user-select: none;
+    overflow-y: auto;
+}
+
+.summaryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #FFFFFF33;
+}
+
+.summaryHeader h2 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.closeBtn {
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.closeBtn:hover {
+    color: #CCCCCC;
+}
+
+.driverInfo {
+    background-color: #2e2e2e;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.driverInfo p {
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+.status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.status.valid {
+    background-color: #2d5016;
+    color: #90ee90;
+}
+
+.status.expired {
+    background-color: #5a3d1a;
+    color: #ffa500;
+}
+
+.status.suspended {
+    background-color: #5a1a1a;
+    color: #ff6b6b;
+}
+
+.summarySection {
+    margin-bottom: 25px;
+}
+
+.summarySection h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #FFFFFF;
+}
+
+.noData {
+    color: #999999;
+    font-style: italic;
+    padding: 10px;
+}
+
+.summaryTable {
+    background-color: #2e2e2e;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.summaryTable table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.summaryTable th {
+    background-color: #353535;
+    padding: 10px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 1px solid #FFFFFF33;
+}
+
+.summaryTable td {
+    padding: 10px;
+    border-bottom: 1px solid #FFFFFF22;
+}
+
+.summaryTable tbody tr:hover {
+    background-color: #353535;
+}

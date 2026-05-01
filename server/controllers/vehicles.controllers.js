@@ -10,6 +10,17 @@ export const getAllVehicles = async (req, res) => {
   }
 };
 
+export const getVehiclesByLicense = async (req, res) => {
+  try {
+    const { license_number } = req.params;
+    const result = await pool.query('SELECT * FROM vehicle WHERE license_number = $1', [license_number]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("DB Error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 export async function addVehicle(req, res) {
   try {
     const {plate_number,engine_number,chassis_number,color,model,year,vehicle_type,license_number} = req.body;
