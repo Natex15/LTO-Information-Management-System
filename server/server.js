@@ -5,8 +5,13 @@ import routes from './routes/index.js';
 
 const app = express();
 
+// Support comma-separated origins, e.g.:
+// CLIENT_URL=https://lto-ims.vercel.app,https://lto-abc123-user-projects.vercel.app
 const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
+  'http://localhost:5173',
+  ...(process.env.CLIENT_URL
+    ? process.env.CLIENT_URL.split(',').map(o => o.trim().replace(/\/$/, ''))
+    : []),
 ];
 
 app.use(cors({
@@ -14,7 +19,7 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`CORS: origin ${origin} not allowed`));
     }
   },
   credentials: true,

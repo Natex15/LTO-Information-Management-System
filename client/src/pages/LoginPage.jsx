@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import './LoginPage.css';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
 
 export default function LoginPage() {
     const [password, setPassword] = useState("");
@@ -34,7 +35,7 @@ export default function LoginPage() {
             />
             <button className="login-button" onClick={login}>Login</button>
             {error && <p className="login-error">{error}</p>}
-            {!error && <p className="login-error" style={{color: '#1E1E1E'}}>No Error</p>}
+            {!error && <p className="login-error" style={{ color: '#1E1E1E' }}>No Error</p>}
         </div>
     );
 }

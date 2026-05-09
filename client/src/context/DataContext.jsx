@@ -2,7 +2,7 @@ import { createContext, useState, useEffect, useContext } from 'react';
 
 const DataContext = createContext();
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
 export function DataProvider({ children }) {
     const [drivers, setDrivers] = useState([]);
