@@ -73,3 +73,28 @@ export async function deleteDriver(req, res) {
   }
 
 }
+
+export async function searchDriver(req, res) {
+
+  try {
+    const { driverName } = req.query;
+
+    const query = `SELECT * FROM driver WHERE full_name ILIKE '%$1%'`;
+
+    const values = [`%${driverName}%`];
+
+    const result = await pool.query(query, values);
+    
+     res.json(result.rows);
+
+  } catch (error) {
+
+    res.status(500).json({success: false, error: error.message});
+
+  }
+
+ 
+
+
+
+}

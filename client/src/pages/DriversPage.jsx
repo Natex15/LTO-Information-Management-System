@@ -32,26 +32,19 @@ export default function DriversPage() {
     };
 
     const handleCreateDriver = async (e) => {
-
         e.preventDefault();
 
         const token = localStorage.getItem("token");
 
         try {
-
-            const response = await fetch(
-                "/api/drivers",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
-                    },
-
-                    body: JSON.stringify(formData)
-                }
-            );
+            const response = await fetch("/api/drivers", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
 
             if (!response.ok) {
                 throw new Error("Failed to create driver");
@@ -60,7 +53,6 @@ export default function DriversPage() {
             const data = await response.json();
 
             setDrivers(prev => [...prev, data]);
-
             setShowModal(false);
 
             setFormData({
@@ -76,15 +68,11 @@ export default function DriversPage() {
             });
 
         } catch (error) {
-
             console.error(error);
-
         }
-
     };
 
     const handleDeleteDriver = async () => {
-
         if (!selectedDriver) {
             return;
         }
@@ -92,15 +80,12 @@ export default function DriversPage() {
         const token = localStorage.getItem("token");
 
         try {
-            const response = await fetch(
-                `/api/drivers/${selectedDriver.license_number}`,
-                {
-                    method: "DELETE",
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+            const response = await fetch(`/api/drivers/${selectedDriver.license_number}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
-            );
+            });
 
             if (!response.ok) {
                 throw new Error("Failed to delete driver");
@@ -113,15 +98,11 @@ export default function DriversPage() {
             setSelectedDriver(null);
 
         } catch (error) {
-
             console.error(error);
-
         }
-
     };
 
     const handleUpdateDriver = async () => {
-
         if (!selectedDriver) {
             return;
         }
@@ -144,43 +125,70 @@ export default function DriversPage() {
     };
 
     const handlePatchDriver = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    if(!selectedDriver) {
-        return;
-    }
-
-    const token = localStorage.getItem("token");
-
-    try {
-        const response = await fetch(`/api/drivers/${selectedDriver.license_number}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(formData)
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to update driver: ${response.status}`);
+        if (!selectedDriver) {
+            return;
         }
 
-        const updatedDriver = await response.json();
+        const token = localStorage.getItem("token");
 
-        setDrivers(prev =>
-            prev.map(driver =>
-                driver.license_number === selectedDriver.license_number ? updatedDriver : driver)
-        );
+        try {
+            const response = await fetch(`/api/drivers/${selectedDriver.license_number}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
 
-        setSelectedDriver(null);
-        setModalMode("add");
-        setShowModal(false);
+            if (!response.ok) {
+                throw new Error(`Failed to update driver: ${response.status}`);
+            }
 
-    } catch (error) {
-        console.error(error);
-    }
-};
+            const updatedDriver = await response.json();
+
+            setDrivers(prev =>
+                prev.map(driver =>
+                    driver.license_number === selectedDriver.license_number ? updatedDriver : driver
+                )
+            );
+
+            setSelectedDriver(null);
+            setModalMode("add");
+            setShowModal(false);
+
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleSearchDriver = async (e) => {
+        const searchTerm = e.target.value;
+
+        try {
+            let url = "/api/drivers";
+
+            if (searchTerm.trim() !== "") {
+                url = `/api/drivers/search?driverName=${encodeURIComponent(searchTerm)}`;
+            }
+
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            const data = await response.json();
+
+            setDrivers(data);
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     return (
         <>
             <Sidebar />
@@ -188,20 +196,27 @@ export default function DriversPage() {
                 <div className="headerRow">
                     <h2 style={{ marginBottom: "10px", userSelect: "none", fontSize: "30px", marginLeft: "11px", color: "#FFFFFF" }}>Registered Drivers</h2>
                     <div className="searchRow">
-                    <button className="sortBtn">Sort by</button>
-                    <input type="text" className="searchBar" placeholder="Search by driver name..."/>
-                    <button
-                        className="addBtn"
-                        onClick={() => {
-                            setModalMode("add");
-                            setShowModal(true);
-                        }}
-                    >Add Driver
-                    </button>
-                    <button className="deleteBtn" onClick={handleDeleteDriver}> Delete Driver</button>
-                    <button className="updateBtn" onClick={handleUpdateDriver}>Update Driver</button>
+                        <button className="sortBtn">Sort by</button>
+                        <input
+                            type="text"
+                            className="searchBar"
+                            placeholder="Search by driver name..."
+                            onChange={handleSearchDriver}
+                        />
+                        <button
+                            className="addBtn"
+                            onClick={() => {
+                                setModalMode("add");
+                                setShowModal(true);
+                            }}
+                        >
+                            Add Driver
+                        </button>
+                        <button className="deleteBtn" onClick={handleDeleteDriver}>Delete Driver</button>
+                        <button className="updateBtn" onClick={handleUpdateDriver}>Update Driver</button>
                     </div>
                 </div>
+
                 {error ? (
                     <p style={{ color: 'red' }}>Failed to load drivers: {error}</p>
                 ) : loading ? (
@@ -209,8 +224,8 @@ export default function DriversPage() {
                 ) : drivers.length === 0 ? (
                     <p>No drivers found. Try adding some via Supabase SQL Editor!</p>
                 ) : (
-                    <div className = "driverTableContainer">
-                        <div className = "driversTable">
+                    <div className="driverTableContainer">
+                        <div className="driversTable">
                             <table>
                                 <thead>
                                     <tr>
@@ -228,10 +243,10 @@ export default function DriversPage() {
                                 <tbody>
                                     {drivers.map(driver => (
                                         <tr
-                                        key={driver.license_number}
-                                        onClick={() => setSelectedDriver(driver)}
-                                        onDoubleClick={() => setShowSummaryModal(true)}
-                                        className={selectedDriver?.license_number === driver.license_number ? "selectedRow" : ""}
+                                            key={driver.license_number}
+                                            onClick={() => setSelectedDriver(driver)}
+                                            onDoubleClick={() => setShowSummaryModal(true)}
+                                            className={selectedDriver?.license_number === driver.license_number ? "selectedRow" : ""}
                                         >
                                             <td>{driver.license_number}</td>
                                             <td>{driver.full_name}</td>
@@ -251,8 +266,21 @@ export default function DriversPage() {
                 )}
             </div>
 
-            <AddDriverModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateDriver={modalMode === "add" ? handleCreateDriver : handlePatchDriver}/>
-            <DriverSummaryModal showModal={showSummaryModal} setShowModal={setShowSummaryModal} driver={selectedDriver} />
+            <AddDriverModal
+                showModal={showModal}
+                setShowModal={setShowModal}
+                modalMode={modalMode}
+                setModalMode={setModalMode}
+                formData={formData}
+                handleChange={handleChange}
+                handleCreateDriver={modalMode === "add" ? handleCreateDriver : handlePatchDriver}
+            />
+
+            <DriverSummaryModal
+                showModal={showSummaryModal}
+                setShowModal={setShowSummaryModal}
+                driver={selectedDriver}
+            />
         </>
     );
 }
