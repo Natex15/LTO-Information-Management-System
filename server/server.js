@@ -5,18 +5,20 @@ import routes from './routes/index.js';
 
 const app = express();
 
-// Support comma-separated origins, e.g.:
-// CLIENT_URL=https://lto-ims.vercel.app,https://lto-abc123-user-projects.vercel.app
-const allowedOrigins = [
-  'http://localhost:5173',
-  ...(process.env.CLIENT_URL
-    ? process.env.CLIENT_URL.split(',').map(o => o.trim().replace(/\/$/, ''))
-    : []),
-];
+// Production URL from env (e.g. https://lto-ims.vercel.app)
+const CLIENT_URL = (process.env.CLIENT_URL || '').replace(/\/$/, '');
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (curl, Postman)
+    if (!origin) return callback(null, true);
+
+    const isLocalhost = origin === 'http://localhost:5173';
+    const isProductionURL = CLIENT_URL && origin === CLIENT_URL;
+    // Allow ALL Vercel preview deployments for this project automatically
+    const isVercelPreview = /\.vercel\.app$/.test(origin);
+
+    if (isLocalhost || isProductionURL || isVercelPreview) {
       callback(null, true);
     } else {
       callback(new Error(`CORS: origin ${origin} not allowed`));
