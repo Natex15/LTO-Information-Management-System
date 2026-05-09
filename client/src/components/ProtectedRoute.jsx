@@ -7,7 +7,11 @@ function ProtectedRoute({ children }) {
         return <Navigate to="/" />;
     }
 
-    return children;
+    return (
+        <div style={{ paddingLeft: '80px', width: '100%', boxSizing: 'border-box' }}>
+            {children}
+        </div>
+    );
 }
 
 export default ProtectedRoute;

@@ -1,42 +1,63 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { LayoutDashboard, Users, Car, FileWarning, LogOut, Menu } from 'lucide-react';
 import './Sidebar.css';
 
-export default function Sidebar(){
-    const [isOpen, setIsOpen] = useState(false)
-    const navigate = useNavigate()
-    const toggleSidebar = () => setIsOpen(!isOpen)
+export default function Sidebar() {
+    const [isOpen, setIsOpen] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogout = () => {
-        localStorage.removeItem("token")
-        navigate("/")
-    }
+        localStorage.removeItem("token");
+        navigate("/");
+    };
 
-    return(
-        <>
-        <div className="app">
-            <button className="sidebar-toggle" onClick={toggleSidebar} aria-label="Toggle sidebar">
-                ☰
-            </button>
-            <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-                <nav>
-                    <ul>
-                        <li><Link to="/dashboard">Dashboard</Link></li>
-                        <li>
-                            Tables
-                            <ul>
-                                <li><Link to="/drivers">Drivers</Link></li>
-                                <li><Link to="/vehicles">Vehicles</Link></li>
-                                <li><Link to="/violations">Violations</Link></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </nav>
-            </aside>
-            <main className={`main-content ${isOpen ? 'sidebar-open' : ''}`}>
-                <button onClick={handleLogout} id="logout-button" style={{color: 'black'}}>Logout</button>
-            </main>
-        </div>
-        </>
+    const navItems = [
+        { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
+        { path: '/drivers', name: 'Drivers', icon: Users },
+        { path: '/vehicles', name: 'Vehicles', icon: Car },
+        { path: '/violations', name: 'Violations', icon: FileWarning },
+    ];
+
+    return (
+        <aside 
+            className={`sidebar ${isOpen ? 'open' : ''}`}
+        >
+            <div className="sidebar-header">
+                <div className="icon-wrapper" onClick={() => setIsOpen(!isOpen)}>
+                    <Menu size={24} className="menu-icon" />
+                </div>
+                <span className="logo-text">LTO System</span>
+            </div>
+            
+            <nav className="sidebar-nav">
+                <ul>
+                    {navItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = location.pathname.startsWith(item.path);
+                        return (
+                            <li key={item.path}>
+                                <Link to={item.path} className={`nav-link ${isActive ? 'active' : ''}`}>
+                                    <div className="icon-wrapper">
+                                        <Icon size={24} />
+                                    </div>
+                                    <span className="nav-text">{item.name}</span>
+                                </Link>
+                            </li>
+                        )
+                    })}
+                </ul>
+            </nav>
+
+            <div className="sidebar-footer">
+                <button className="logout-btn" onClick={handleLogout}>
+                    <div className="icon-wrapper">
+                        <LogOut size={24} />
+                    </div>
+                    <span className="nav-text">Logout</span>
+                </button>
+            </div>
+        </aside>
     );
 }

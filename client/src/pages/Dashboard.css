@@ -1,7 +1,6 @@
 .dashboard-container {
     padding: 20px;
     font-family: sans-serif;
-    margin-left: 250px; /* Assuming sidebar is ~250px */
 }
 
 .dashboard-header {
