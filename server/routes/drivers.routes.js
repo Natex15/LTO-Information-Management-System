@@ -5,9 +5,9 @@ import authMiddleware from '../middleware/auth.middleware.js';
 const router = express.Router();
 
 router.get('/', authMiddleware, getAllDrivers);
+router.get('/search', authMiddleware, searchDriver);
 router.delete('/:license_number', authMiddleware, deleteDriver);
 router.patch('/:license_number', authMiddleware, updateDriver);
-router.get('/search', authMiddleware, searchDriver)
 router.post('/', authMiddleware, createDriver);
 
 export default router;

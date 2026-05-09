@@ -345,3 +345,40 @@
 .summaryTable tbody tr:hover {
     background-color: #353535;
 }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    user-select: none;
+}
+
+.pagination button {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 12px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-right: 12px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.pagination button:hover {
+    border: 1px solid #FFFFFF;
+    background-color: #181818;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.activePage {
+    border: 1px solid #FFFFFF !important;
+    background-color: #353535 !important;
+}

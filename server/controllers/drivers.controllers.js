@@ -79,7 +79,7 @@ export async function searchDriver(req, res) {
   try {
     const { driverName } = req.query;
 
-    const query = `SELECT * FROM driver WHERE full_name ILIKE '%$1%'`;
+    const query = `SELECT * FROM driver WHERE full_name ILIKE $1`;
 
     const values = [`%${driverName}%`];
 

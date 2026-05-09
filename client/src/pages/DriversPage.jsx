@@ -11,6 +11,13 @@ export default function DriversPage() {
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [selectedDriver, setSelectedDriver] = useState(null);
     const [modalMode, setModalMode] = useState("add");
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const driversPerPage = 5;
+    const totalPages = Math.ceil(drivers.length / driversPerPage);
+    const indexOfLastDriver = currentPage * driversPerPage;
+    const indexOfFirstDriver = indexOfLastDriver - driversPerPage;
+    const currentDrivers = drivers.slice(indexOfFirstDriver, indexOfLastDriver);
 
     const [formData, setFormData] = useState({
         license_number: "",
@@ -183,6 +190,7 @@ export default function DriversPage() {
             const data = await response.json();
 
             setDrivers(data);
+            setCurrentPage(1);
 
         } catch (err) {
             console.error(err);
@@ -241,7 +249,7 @@ export default function DriversPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {drivers.map(driver => (
+                                    {currentDrivers.map(driver => (
                                         <tr
                                             key={driver.license_number}
                                             onClick={() => setSelectedDriver(driver)}
@@ -261,6 +269,32 @@ export default function DriversPage() {
                                     ))}
                                 </tbody>
                             </table>
+
+                            <div className="pagination">
+                                <button
+                                    onClick={() => setCurrentPage(prev => prev - 1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    Previous
+                                </button>
+
+                                {Array.from({ length: totalPages }, (_, index) => (
+                                    <button
+                                        key={index + 1}
+                                        onClick={() => setCurrentPage(index + 1)}
+                                        className={currentPage === index + 1 ? "activePage" : ""}
+                                    >
+                                        {index + 1}
+                                    </button>
+                                ))}
+
+                                <button
+                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -278,7 +312,7 @@ export default function DriversPage() {
 
             <DriverSummaryModal
                 showModal={showSummaryModal}
-                setShowModal={setShowSummaryModal}
+                setShowModal={setShowModal}
                 driver={selectedDriver}
             />
         </>
