@@ -2,6 +2,8 @@ import { createContext, useState, useEffect, useContext } from 'react';
 
 const DataContext = createContext();
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export function DataProvider({ children }) {
     const [drivers, setDrivers] = useState([]);
     const [vehicles, setVehicles] = useState([]);
@@ -20,9 +22,9 @@ export function DataProvider({ children }) {
         try {
             const headers = { Authorization: `Bearer ${token}` };
             const [driversRes, vehiclesRes, violationsRes] = await Promise.all([
-                fetch('/api/drivers', { headers }),
-                fetch('/api/vehicles', { headers }),
-                fetch('/api/violations', { headers })
+                fetch(`${API_BASE}/api/drivers`, { headers }),
+                fetch(`${API_BASE}/api/vehicles`, { headers }),
+                fetch(`${API_BASE}/api/violations`, { headers })
             ]);
 
             if (!driversRes.ok) throw new Error('Failed to fetch drivers');

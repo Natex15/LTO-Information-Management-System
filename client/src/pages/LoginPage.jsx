@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import './LoginPage.css';
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
@@ -11,7 +13,7 @@ export default function LoginPage() {
     const login = async () => {
         setError(null);
         try {
-            const res = await axios.post("/api/auth/login", { password });
+            const res = await axios.post(`${API_BASE}/api/auth/login`, { password });
             localStorage.setItem("token", res.data.token);
             navigate("/dashboard");
         } catch (err) {

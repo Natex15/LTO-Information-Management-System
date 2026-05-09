@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import routes from './routes/index.js';
+import routes from '../routes/index.js';
 
 const app = express();
 
@@ -11,6 +11,7 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -19,17 +20,11 @@ app.use(cors({
   },
   credentials: true,
 }));
+
 app.use(express.json());
 
 // All API routes
 app.use('/api', routes);
 
-// Only listen when running locally (not on Vercel)
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
-
+// Export for Vercel Serverless Functions
 export default app;
