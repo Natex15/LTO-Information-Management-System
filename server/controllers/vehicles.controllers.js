@@ -71,8 +71,20 @@ export async function deleteVehicle(req, res){
     }
 
     res.json({message: "Vehicle deleted successfully"});
-    
+
   }catch(error){
     res.status(500).json({success: false, error: error.message});
+  }
+}
+
+export async function getExpiredRegistrations(req, res) {
+  try {
+    const { date } = req.query;
+    const result = await pool.query(
+      `SELECT v.* FROM vehicle v WHERE v.plate_number IN (SELECT r.plate_number FROM registration r WHERE r.expiration_date <= $1)`, [date]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message })
   }
 }

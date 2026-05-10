@@ -9,6 +9,9 @@ export default function VehiclesPage() {
     const [showModal, setShowModal] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [modalMode, setModalMode] = useState("add");
+    const [showExpired, setShowExpired] = useState(false);
+    const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
+    const [expiredVehicles, setExpiredVehicles] = useState([]);
 
     const [formData, setFormData] = useState({
         plate_number: "",
@@ -165,6 +168,32 @@ export default function VehiclesPage() {
         }
     };
 
+  const handleViewExpiredRegistrations = async () => {
+    if (showExpired) {
+      setShowExpired(false);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch(
+        `/api/vehicles/expired-registrations?date=${filterDate}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch expired registrations");
+
+      const data = await response.json();
+      setExpiredVehicles(data);
+      setShowExpired(true);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const displayedVehicles = showExpired ? expiredVehicles : vehicles;
+
     return (
         <>
             <Sidebar />
@@ -174,25 +203,25 @@ export default function VehiclesPage() {
                         Registered Vehicles
                     </h2>
                     <div className="searchRow">
-                        <button className="sortBtn">Sort by</button>
-                        <input
-                            type="text"
-                            className="searchBar"
-                            placeholder="Search by plate number..."
-                        />
-                        <button
-                            className="addBtn"
-                            onClick={() => {
-                                setModalMode("add");
-                                setShowModal(true);
-                            }}
-                        >Add Vehicle
-                        </button>
-                        <button className="deleteBtn" onClick={handleDeleteVehicle}> Delete Vehicle</button>
-                        <button className="updateBtn" onClick={handleUpdateVehicle}>Update Vehicle</button>
+                      <input
+                        type="date"
+                        className="searchBar"
+                        value={filterDate}
+                        onChange={(e) => { setFilterDate(e.target.value); setShowExpired(false); }}
+                        style={{ width: "140px" }}
+                      />
+                      <button className="fltrBtn" onClick={handleViewExpiredRegistrations}>
+                        {showExpired ? "Show All" : "Expired Registrations"}
+                      </button>
+                      <button className="sortBtn">Sort by</button>
+                      <input type="text" className="searchBar" placeholder="Search by plate number..." />
+                      <button className="addBtn" onClick={() => { setModalMode("add"); setShowModal(true); }}>
+                        Add Vehicle
+                      </button>
+                      <button className="deleteBtn" onClick={handleDeleteVehicle}>Delete Vehicle</button>
+                      <button className="updateBtn" onClick={handleUpdateVehicle}>Update Vehicle</button>
                     </div>
                 </div>
-
                 {error ? (
                     <p style={{ color: 'red' }}>Failed to load vehicles: {error}</p>
                 ) : loading ? (
@@ -216,7 +245,7 @@ export default function VehiclesPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {vehicles.map(vehicle => (
+                                    {displayedVehicles.map(vehicle => (
                                         <tr
                                             key={vehicle.plate_number}
                                             onClick={() => setSelectedVehicle(vehicle)}
