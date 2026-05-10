@@ -12,12 +12,18 @@ export default function DriversPage() {
     const [selectedDriver, setSelectedDriver] = useState(null);
     const [modalMode, setModalMode] = useState("add");
     const [currentPage, setCurrentPage] = useState(1);
+    const [showExpiredSuspended, setShowExpiredSuspended] = useState(false);
 
     const driversPerPage = 5;
-    const totalPages = Math.ceil(drivers.length / driversPerPage);
+
+    const displayedDrivers = showExpiredSuspended ? drivers.filter(
+      d => d.license_status === "Expired" || d.license_status === "Suspended"
+    ) : drivers;
+
+    const totalPages = Math.ceil(displayedDrivers.length / driversPerPage);
     const indexOfLastDriver = currentPage * driversPerPage;
     const indexOfFirstDriver = indexOfLastDriver - driversPerPage;
-    const currentDrivers = drivers.slice(indexOfFirstDriver, indexOfLastDriver);
+    const currentDrivers = displayedDrivers.slice(indexOfFirstDriver, indexOfLastDriver);
 
     const [formData, setFormData] = useState({
         license_number: "",
@@ -204,6 +210,13 @@ export default function DriversPage() {
                 <div className="headerRow">
                     <h2 style={{ marginBottom: "10px", userSelect: "none", fontSize: "30px", marginLeft: "11px", color: "#FFFFFF" }}>Registered Drivers</h2>
                     <div className="searchRow">
+                        <button
+                          className="fltrBtn"
+                          onClick={() => setShowExpiredSuspended((prev) => !prev)}
+                        >
+                          {" "}
+                          {showExpiredSuspended ? "Show all" : "Expired / Suspended"}
+                        </button>
                         <button className="sortBtn">Sort by</button>
                         <input
                             type="text"

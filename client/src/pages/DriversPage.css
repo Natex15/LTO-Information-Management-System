@@ -82,6 +82,17 @@
     border: 1px solid #FFFFFF;
 }
 
+.fltrBtn {
+    border: 2px solid #ffffff33;
+    background-color: #222222;
+    color: #ffffff;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
 .sortBtn:hover {
     border: 1px solid #FFFFFF;
 }
