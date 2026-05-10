@@ -12,6 +12,8 @@ export default function VehiclesPage() {
     const [showExpired, setShowExpired] = useState(false);
     const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
     const [expiredVehicles, setExpiredVehicles] = useState([]);
+    const [searchLicense, setSearchLicense] = useState("");
+    const [filteredVehicles, setFilteredVehicles] = useState(null);
 
     const [formData, setFormData] = useState({
         plate_number: "",
@@ -192,7 +194,35 @@ export default function VehiclesPage() {
     }
   };
 
-  const displayedVehicles = showExpired ? expiredVehicles : vehicles;
+  const handleSearchByDriver = async (e) => {
+    const value = e.target.value;
+    setSearchLicense(value);
+    setShowExpired(false);
+
+    if (value.trim() === "") {
+        setFilteredVehicles(null);
+        return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    try {
+        const response = await fetch(
+            `/api/vehicles/by-driver?driverName=${encodeURIComponent(value)}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (!response.ok) { setFilteredVehicles([]); return; }
+
+        const data = await response.json();
+        setFilteredVehicles(Array.isArray(data) ? data : []);
+    } catch (error) {
+        console.error(error);
+        setFilteredVehicles([]);
+    }
+  };
+
+  const displayedVehicles = filteredVehicles !== null ? filteredVehicles : showExpired ? expiredVehicles : vehicles;
 
     return (
         <>
@@ -203,6 +233,13 @@ export default function VehiclesPage() {
                         Registered Vehicles
                     </h2>
                     <div className="searchRow">
+                      <input
+                        type="text"
+                        className="searchBar"
+                        placeholder="Search by name"
+                        value={searchLicense}
+                        onChange={handleSearchByDriver}
+                      />
                       <input
                         type="date"
                         className="searchBar"

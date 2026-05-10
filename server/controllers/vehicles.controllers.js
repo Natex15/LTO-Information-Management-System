@@ -88,3 +88,18 @@ export async function getExpiredRegistrations(req, res) {
     res.status(500).json({ error: error.message })
   }
 }
+
+export async function getVehiclesByDriver(req, res) {
+  try {
+    const { driverName } = req.query;
+    const result = await pool.query(
+      `SELECT v.* FROM vehicle v
+       JOIN driver d ON v.license_number = d.license_number
+       WHERE d.full_name ILIKE $1`,
+      [`%${driverName}%`]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

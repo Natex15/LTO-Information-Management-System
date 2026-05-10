@@ -1,11 +1,12 @@
 import express from 'express';
-import { getAllVehicles, getVehiclesByLicense, addVehicle, updateVehicle, deleteVehicle, getExpiredRegistrations } from '../controllers/vehicles.controllers.js';
+import { getAllVehicles, getVehiclesByLicense, addVehicle, updateVehicle, deleteVehicle, getExpiredRegistrations, getVehiclesByDriver } from '../controllers/vehicles.controllers.js';
 import authMiddleware from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
 router.get('/', authMiddleware, getAllVehicles);
 router.get('/expired-registrations', authMiddleware, getExpiredRegistrations);
+router.get('/by-driver', authMiddleware, getVehiclesByDriver);
 router.get('/:license_number', authMiddleware, getVehiclesByLicense);
 router.post('/', authMiddleware, addVehicle);
 router.patch('/:plate_number', authMiddleware, updateVehicle);
