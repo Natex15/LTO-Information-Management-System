@@ -9,6 +9,15 @@ export default function VehiclesPage() {
     const [showModal, setShowModal] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [modalMode, setModalMode] = useState("add");
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const vehiclesPerPage = 5;
+    const totalPages = Math.ceil(vehicles.length / vehiclesPerPage);
+
+    const indexOfLastVehicle = currentPage * vehiclesPerPage;
+    const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage;
+
+    const currentVehicles = vehicles.slice(indexOfFirstVehicle, indexOfLastVehicle);
 
     const [formData, setFormData] = useState({
         plate_number: "",
@@ -165,6 +174,36 @@ export default function VehiclesPage() {
         }
     };
 
+    const handleSearchVehicle = async (e) => {
+        const searchTerm = e.target.value;
+
+        try {
+            let url = "/api/vehicles";
+
+            if (searchTerm.trim() !== "") {
+                url = `/api/vehicles/search?plate_number=${encodeURIComponent(searchTerm)}`;
+            }
+
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to search vehicles");
+            }
+
+            const data = await response.json();
+
+            setVehicles(data);
+            setCurrentPage(1);
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     return (
         <>
             <Sidebar />
@@ -179,6 +218,7 @@ export default function VehiclesPage() {
                             type="text"
                             className="searchBar"
                             placeholder="Search by plate number..."
+                            onChange={handleSearchVehicle}
                         />
                         <button
                             className="addBtn"
@@ -216,7 +256,7 @@ export default function VehiclesPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {vehicles.map(vehicle => (
+                                    {currentVehicles.map(vehicle => (
                                         <tr
                                             key={vehicle.plate_number}
                                             onClick={() => setSelectedVehicle(vehicle)}
@@ -235,6 +275,31 @@ export default function VehiclesPage() {
                                 </tbody>
                             </table>
                         </div>
+                            <div className="pagination">
+                                <button
+                                    onClick={() => setCurrentPage(prev => prev - 1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    Previous
+                                </button>
+
+                                {Array.from({ length: totalPages }, (_, index) => (
+                                    <button
+                                        key={index + 1}
+                                        onClick={() => setCurrentPage(index + 1)}
+                                        className={currentPage === index + 1 ? "activePage" : ""}
+                                    >
+                                        {index + 1}
+                                    </button>
+                                ))}
+
+                                <button
+                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                </button>
+                            </div>
                     </div>
                 )}
             </div>

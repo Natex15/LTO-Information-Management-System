@@ -4,16 +4,56 @@ import './VehiclesPage.css';
 import { useData } from "../context/DataContext";
 
 export default function ViolationsPage() {
-    const { violations, loading, error } = useData();
+    const { violations, setViolations, loading, error } = useData();
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
+    const totalPages = Math.ceil(violations.length / itemsPerPage);
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentViolations = violations.slice(startIndex, startIndex + itemsPerPage);
+
+    const handleSearchViolation = async (e) => {
+        const searchTerm = e.target.value;
+
+        try {
+            let url = "/api/violations";
+
+            if (searchTerm.trim() !== "") {
+                url = `/api/violations/search?plate_number=${encodeURIComponent(searchTerm)}`;
+            }
+
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to search violations");
+            }
+
+            const data = await response.json();
+
+            setViolations(data);
+            setCurrentPage(1);
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     return (
         <>
             <Sidebar />
+
             <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
                 <div className="headerRow">
                     <h2 style={{ marginBottom: "10px", userSelect: "none", fontSize: "30px", marginLeft: "11px", color: "#FFFFFF" }}>
                         Violations
                     </h2>
+
                     <div className="searchRow">
                         <button className="sortBtn">Sort by</button>
 
@@ -21,6 +61,7 @@ export default function ViolationsPage() {
                             type="text"
                             className="searchBar"
                             placeholder="Search by plate number..."
+                            onChange={handleSearchViolation}
                         />
                     </div>
                 </div>
@@ -48,11 +89,16 @@ export default function ViolationsPage() {
                                         <th>Plate Number</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    {violations.map((violation) => (
+                                    {currentViolations.map((violation) => (
                                         <tr key={violation.violation_id}>
                                             <td>{violation.violation_id}</td>
-                                            <td>{violation?.violation_types?.length > 0 ? violation.violation_types.join(', ') : 'N/A'}</td>
+                                            <td>
+                                                {violation?.violation_types?.length > 0
+                                                    ? violation.violation_types.join(', ')
+                                                    : 'N/A'}
+                                            </td>
                                             <td>{violation.violation_status}</td>
                                             <td>{violation.corresponding_fine_amount}</td>
                                             <td>{violation.apprehending_officer}</td>
@@ -64,6 +110,32 @@ export default function ViolationsPage() {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div className="pagination">
+                            <button
+                                onClick={() => setCurrentPage(prev => prev - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                Previous
+                            </button>
+
+                            {Array.from({ length: totalPages }, (_, index) => (
+                                <button
+                                    key={index + 1}
+                                    onClick={() => setCurrentPage(index + 1)}
+                                    className={currentPage === index + 1 ? "activePage" : ""}
+                                >
+                                    {index + 1}
+                                </button>
+                            ))}
+
+                            <button
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next
+                            </button>
                         </div>
                     </div>
                 )}

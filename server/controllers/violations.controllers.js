@@ -101,3 +101,23 @@ export const getDashboardStats = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export async function searchViolation(req, res) {
+
+  try {
+    const { plate_number } = req.query;
+
+    const query = `SELECT * FROM violation WHERE plate_number ILIKE $1`;
+
+    const values = [`%${plate_number}%`];
+
+    const result = await pool.query(query, values);
+    
+     res.json(result.rows);
+
+  } catch (error) {
+
+    res.status(500).json({success: false, error: error.message});
+
+  }
+}
