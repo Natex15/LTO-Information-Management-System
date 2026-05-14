@@ -92,9 +92,4 @@ export async function searchDriver(req, res) {
     res.status(500).json({success: false, error: error.message});
 
   }
-
- 
-
-
-
 }
