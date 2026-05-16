@@ -96,3 +96,83 @@
     width: 220px;
   }
 }
+
+.driverViolationModalBox {
+    width: 1100px;
+    max-width: 95vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.driverViolationResults {
+    margin-top: 20px;
+    overflow-x: hidden;
+}
+
+.driverViolationResults table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    user-select: none;
+}
+
+.driverViolationResults th,
+.driverViolationResults td {
+    padding: 12px;
+    text-align: center;
+    color: #FFFFFF;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.driverViolationResults thead th {
+    background-color: #2e2e2e;
+}
+
+.driverViolationResults tbody tr:hover {
+    background-color: #181818;
+}
+
+.driverViolationError {
+    color: #ff6b6b;
+    margin-top: 10px;
+}
+
+.noDriverViolationResult {
+    color: #999999;
+    font-style: italic;
+    margin-top: 15px;
+}
+
+.driverViolationSearchBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.driverViolationSearchBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
+.driverViolationModalBox input[type="date"] {
+    color: #FFFFFF !important;
+    color-scheme: dark !important;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 18px center !important;
+    background-size: 18px 18px !important;
+}
+
+.driverViolationModalBox input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0 !important;
+    cursor: pointer !important;
+}

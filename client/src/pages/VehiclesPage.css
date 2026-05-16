@@ -244,22 +244,22 @@
 /* WIDER MODAL FOR VIOLATION SEARCH */
 
 .violationModalBox {
-    width: 900px;
-    max-width: 90vw;
+    width: 950px;
+    max-width: 95vw;
     max-height: 80vh;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* VIOLATION SEARCH RESULTS */
 
 .violationResults {
     margin-top: 20px;
-    overflow-x: auto;
+    overflow-x: hidden;
 }
 
 .violationResults table {
     width: 100%;
-    min-width: 850px;
     border-collapse: collapse;
     table-layout: fixed;
     user-select: none;
@@ -272,6 +272,8 @@
     color: #FFFFFF;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
 .violationResults thead th {
