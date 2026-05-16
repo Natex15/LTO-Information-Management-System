@@ -4,6 +4,7 @@ import './ViolationsPage.css';
 import { useData } from "../context/DataContext";
 
 export default function ViolationsPage() {
+    // States
     const { violations, setViolations, loading, error } = useData();
     const [currentPage, setCurrentPage] = useState(1);
     const [showDriverViolationModal, setShowDriverViolationModal] = useState(false);
@@ -19,6 +20,7 @@ export default function ViolationsPage() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentViolations = violations.slice(startIndex, startIndex + itemsPerPage);
 
+    // Searching violation by plate num
     const handleSearchViolation = async (e) => {
         const searchTerm = e.target.value;
 
@@ -49,6 +51,7 @@ export default function ViolationsPage() {
         }
     };
 
+    // Searches driver traffic violations within a date range
     const handleSearchDriverViolations = async (e) => {
         e.preventDefault();
 
@@ -205,6 +208,7 @@ export default function ViolationsPage() {
                     </div>
                 )}
             </div>
+            
             {showDriverViolationModal && (
                 <div className="modalOverlay">
                     <div className="modalBox driverViolationModalBox">

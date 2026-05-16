@@ -5,6 +5,7 @@ import AddVehicleModal from "../components/AddVehicleModal";
 import { useData } from "../context/DataContext";
 
 export default function VehiclesPage() {
+    // States
     const { vehicles, setVehicles, loading, error } = useData();
     const [showModal, setShowModal] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
@@ -41,6 +42,7 @@ export default function VehiclesPage() {
         });
     };
 
+    // Create vehicle
     const handleCreateVehicle = async (e) => {
         e.preventDefault();
 
@@ -85,6 +87,7 @@ export default function VehiclesPage() {
         }
     };
 
+    // Delete vehicle
     const handleDeleteVehicle = async () => {
         if (!selectedVehicle) {
             return;
@@ -118,6 +121,7 @@ export default function VehiclesPage() {
         }
     };
 
+    // Prepares modal for updating
     const handleUpdateVehicle = async () => {
         if (!selectedVehicle) {
             return;
@@ -139,6 +143,7 @@ export default function VehiclesPage() {
         setShowModal(true);
     };
 
+    // Handles the update
     const handlePatchVehicle = async (e) => {
         e.preventDefault();
 
@@ -178,6 +183,7 @@ export default function VehiclesPage() {
         }
     };
 
+    // Search vehicle via plate num
     const handleSearchVehicle = async (e) => {
         const searchTerm = e.target.value;
 
@@ -208,6 +214,7 @@ export default function VehiclesPage() {
         }
     };
 
+    // Searches vehicles violations within a city/region
     const handleSearchVehiclesWithViolations = async (e) => {
         e.preventDefault();
 
