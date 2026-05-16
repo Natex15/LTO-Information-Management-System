@@ -21,6 +21,7 @@
   text-align: center;
   color: #FFFFFF;
 }
+
 .vehicleTable thead th {
   background-color: #2e2e2e;
 }
@@ -220,5 +221,111 @@
 }
 
 .selectedRow {
+    background-color: #353535 !important;
+}
+
+/* SEARCH VEHICLES WITH VIOLATIONS BUTTON */
+
+.violationSearchBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.violationSearchBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
+/* WIDER MODAL FOR VIOLATION SEARCH */
+
+.violationModalBox {
+    width: 900px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* VIOLATION SEARCH RESULTS */
+
+.violationResults {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+.violationResults table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    user-select: none;
+}
+
+.violationResults th,
+.violationResults td {
+    padding: 12px;
+    text-align: center;
+    color: #FFFFFF;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    word-break: break-word;
+}
+
+.violationResults thead th {
+    background-color: #2e2e2e;
+}
+
+.violationResults tbody tr:hover {
+    background-color: #181818;
+}
+
+.violationError {
+    color: #ff6b6b;
+    margin-top: 10px;
+}
+
+.noViolationResult {
+    color: #999999;
+    font-style: italic;
+    margin-top: 15px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    user-select: none;
+}
+
+.pagination button {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 12px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-right: 12px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.pagination button:hover {
+    border: 1px solid #FFFFFF;
+    background-color: #181818;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.activePage {
+    border: 1px solid #FFFFFF !important;
     background-color: #353535 !important;
 }

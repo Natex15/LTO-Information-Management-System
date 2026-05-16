@@ -5,7 +5,6 @@ import { useData } from "../context/DataContext";
 
 export default function ViolationsPage() {
     const { violations, setViolations, loading, error } = useData();
-
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 

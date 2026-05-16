@@ -10,6 +10,10 @@ export default function VehiclesPage() {
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [modalMode, setModalMode] = useState("add");
     const [currentPage, setCurrentPage] = useState(1);
+    const [showViolationModal, setShowViolationModal] = useState(false);
+    const [violationLocation, setViolationLocation] = useState("");
+    const [violationVehicles, setViolationVehicles] = useState([]);
+    const [violationSearchError, setViolationSearchError] = useState("");
 
     const vehiclesPerPage = 5;
     const totalPages = Math.ceil(vehicles.length / vehiclesPerPage);
@@ -204,6 +208,42 @@ export default function VehiclesPage() {
         }
     };
 
+    const handleSearchVehiclesWithViolations = async (e) => {
+        e.preventDefault();
+
+        if (violationLocation.trim() === "") {
+            setViolationSearchError("Please enter a location.");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+
+        try {
+            setViolationSearchError("");
+
+            const response = await fetch(
+                `/api/vehicles/vehicles-violations/location?location=${encodeURIComponent(violationLocation)}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to search vehicles with violations");
+            }
+
+            const data = await response.json();
+
+            setViolationVehicles(data.vehicles || data);
+        } catch (error) {
+            console.error(error);
+            setViolationSearchError("Failed to search vehicles with violations.");
+        }
+    };
+
     return (
         <>
             <Sidebar />
@@ -214,6 +254,17 @@ export default function VehiclesPage() {
                     </h2>
                     <div className="searchRow">
                         <button className="sortBtn">Sort by</button>
+                        <button
+                            className="violationSearchBtn"
+                            onClick={() => {
+                                setShowViolationModal(true);
+                                setViolationLocation("");
+                                setViolationVehicles([]);
+                                setViolationSearchError("");
+                            }}
+                        >
+                            Search Vehicles with Violations
+                        </button>
                         <input
                             type="text"
                             className="searchBar"
@@ -303,7 +354,79 @@ export default function VehiclesPage() {
                     </div>
                 )}
             </div>
+            {showViolationModal && (
+                <div className="modalOverlay">
+                    <div className="modalBox violationModalBox">
+                        <h2>Search Vehicles with Violations</h2>
 
+                        <form onSubmit={handleSearchVehiclesWithViolations}>
+                            <input
+                                type="text"
+                                placeholder="Enter city or region..."
+                                value={violationLocation}
+                                onChange={(e) => setViolationLocation(e.target.value)}
+                            />
+
+                            <div className="modalActions">
+                                <button type="submit" className="saveBtn">
+                                    Search
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="cancelBtn"
+                                    onClick={() => {
+                                        setShowViolationModal(false);
+                                        setViolationLocation("");
+                                        setViolationVehicles([]);
+                                        setViolationSearchError("");
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+
+                        {violationSearchError && (
+                            <p className="violationError">{violationSearchError}</p>
+                        )}
+
+                        <div className="violationResults">
+                            {violationVehicles.length === 0 ? (
+                                <p className="noViolationResult">
+                                    No vehicles with violations found.
+                                </p>
+                            ) : (
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Plate Number</th>
+                                            <th>Model</th>
+                                            <th>Color</th>
+                                            <th>Vehicle Type</th>
+                                            <th>Violations Committed</th>
+                                            <th>Location</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {violationVehicles.map((vehicle, index) => (
+                                            <tr key={`${vehicle.plate_number}-${index}`}>
+                                                <td>{vehicle.plate_number}</td>
+                                                <td>{vehicle.model}</td>
+                                                <td>{vehicle.color}</td>
+                                                <td>{vehicle.vehicle_type}</td>
+                                                <td>{vehicle.violation_types || "N/A"}</td>
+                                                <td>{vehicle.location}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
             <AddVehicleModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateVehicle={modalMode === "add" ? handleCreateVehicle : handlePatchVehicle} />
         </>
     );

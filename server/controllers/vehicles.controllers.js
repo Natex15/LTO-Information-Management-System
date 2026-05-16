@@ -96,3 +96,55 @@ export async function searchVehicle(req, res) {
 
   }
 }
+
+export async function findVehicleViolation(req, res) {
+  try {
+    const { location } = req.query;
+
+    if (!location) {
+      return res.status(400).json({
+        success: false,
+        message: "Location is required",
+      });
+    }
+
+    const query = `
+      SELECT 
+        v.plate_number,
+        v.color,
+        v.model,
+        v.vehicle_type,
+        STRING_AGG(t.violation_type, ', ') AS violation_types,
+        i.location
+      FROM vehicle v
+      JOIN violation i 
+        ON v.plate_number = i.plate_number
+      JOIN violation_type t 
+        ON t.violation_id = i.violation_id
+      WHERE i.location ILIKE $1
+      GROUP BY 
+        v.plate_number,
+        v.color,
+        v.model,
+        v.vehicle_type,
+        i.location
+    `;
+
+    const values = [`%${location}%`];
+
+    const result = await pool.query(query, values);
+
+    return res.status(200).json({
+      success: true,
+      vehicles: result.rows,
+    });
+
+  } catch (error) {
+    console.error("Find vehicle violation error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
