@@ -147,7 +147,7 @@
     margin-top: 15px;
 }
 
-.driverViolationSearchBtn {
+.driverViolationSearchBtn, .violationTypeBtn {
     border: 2px solid #FFFFFF33;
     background-color: #222222;
     color: #FFFFFF;

@@ -330,6 +330,14 @@ export default function VehiclesPage() {
                         onChange={(e) => { setFilterDate(e.target.value); setShowExpired(false); }}
                         style={{ width: "140px" }}
                       />
+                      <button className="violationSearchBtn"
+                        onClick={() => {
+                          setShowViolationModal(true);
+                          setViolationLocation("");
+                          setViolationVehicles([]);
+                          setViolationSearchError("");
+                        }}
+                      >Search Vehicles with Violations</button>
                       <button className="fltrBtn" onClick={handleViewExpiredRegistrations}>
                         {showExpired ? "Show All" : "Expired Registrations"}
                       </button>
