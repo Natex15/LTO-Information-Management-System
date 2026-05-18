@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Sidebar from "../components/Sidebar";
+import Pagination from "../components/Pagination";
 import './ViolationsPage.css';
 import { useData } from "../context/DataContext";
 
@@ -28,6 +29,7 @@ export default function ViolationsPage() {
     const [modalMode, setModalMode] = useState("add");
     const [selectedViolation, setSelectedViolation] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
 
     const [formData, setFormData] = useState({
         date: "",
@@ -161,6 +163,11 @@ export default function ViolationsPage() {
         }
     };
 
+    const itemsPerPage = 5;
+    const totalPages = Math.ceil(filteredViolations.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentViolations = filteredViolations.slice(startIndex, startIndex + itemsPerPage);
+
     return (
         <>
             <Sidebar />
@@ -212,7 +219,7 @@ export default function ViolationsPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredViolations.map((violation) => (
+                                    {currentViolations.map((violation) => (
                                         <tr
                                             key={violation.violation_id}
                                             onClick={() => setSelectedViolation(violation)}
@@ -232,6 +239,11 @@ export default function ViolationsPage() {
                                 </tbody>
                             </table>
                         </div>
+                        <Pagination 
+                            currentPage={currentPage} 
+                            totalPages={totalPages} 
+                            onPageChange={setCurrentPage} 
+                        />
                     </div>
                 )}
             </div>

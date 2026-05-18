@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Sidebar from "../components/Sidebar";
+import Pagination from "../components/Pagination";
 import './RegistrationsPage.css';
 import { useData } from "../context/DataContext";
 
@@ -12,6 +13,7 @@ export default function VehicleRegistrationsPage() {
     const [selectedRegistration, setSelectedRegistration] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
 
     const [formData, setFormData] = useState({
         registration_number: "",
@@ -137,6 +139,11 @@ export default function VehicleRegistrationsPage() {
         return matchesSearch && matchesStatus;
     });
 
+    const itemsPerPage = 5;
+    const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentRegistrations = filteredRegistrations.slice(startIndex, startIndex + itemsPerPage);
+
     return (
         <>
             <Sidebar />
@@ -195,7 +202,7 @@ export default function VehicleRegistrationsPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredRegistrations.map((reg) => (
+                                    {currentRegistrations.map((reg) => (
                                         <tr
                                             key={reg.registration_number}
                                             onClick={() => setSelectedRegistration(reg)}
@@ -219,6 +226,11 @@ export default function VehicleRegistrationsPage() {
                                 </tbody>
                             </table>
                         </div>
+                        <Pagination 
+                            currentPage={currentPage} 
+                            totalPages={totalPages} 
+                            onPageChange={setCurrentPage} 
+                        />
                     </div>
                 )}
             </div>

@@ -11,3 +11,40 @@ body {
 * {
     box-sizing: border-box;
 }
+
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 0 20px 20px 20px;
+}
+
+.page-btn {
+    background-color: #222222;
+    color: #FFFFFF;
+    border: 2px solid #FFFFFF33;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.page-btn:hover:not(:disabled) {
+    border-color: #FFFFFF;
+    background-color: #353535;
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-btn-active {
+    background-color: #FFFFFF;
+    color: #000000;
+    border-color: #FFFFFF;
+}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Sidebar from "../components/Sidebar";
 import './VehiclesPage.css';
 import AddVehicleModal from "../components/AddVehicleModal";
+import Pagination from "../components/Pagination";
 import { useData } from "../context/DataContext";
 
 export default function VehiclesPage() {
@@ -9,6 +10,7 @@ export default function VehiclesPage() {
     const [showModal, setShowModal] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [modalMode, setModalMode] = useState("add");
+    const [currentPage, setCurrentPage] = useState(1);
 
     const [formData, setFormData] = useState({
         plate_number: "",
@@ -165,6 +167,11 @@ export default function VehiclesPage() {
         }
     };
 
+    const itemsPerPage = 5;
+    const totalPages = Math.ceil(vehicles.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentVehicles = vehicles.slice(startIndex, startIndex + itemsPerPage);
+
     return (
         <>
             <Sidebar />
@@ -216,7 +223,7 @@ export default function VehiclesPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {vehicles.map(vehicle => (
+                                    {currentVehicles.map(vehicle => (
                                         <tr
                                             key={vehicle.plate_number}
                                             onClick={() => setSelectedVehicle(vehicle)}
@@ -235,6 +242,11 @@ export default function VehiclesPage() {
                                 </tbody>
                             </table>
                         </div>
+                        <Pagination 
+                            currentPage={currentPage} 
+                            totalPages={totalPages} 
+                            onPageChange={setCurrentPage} 
+                        />
                     </div>
                 )}
             </div>

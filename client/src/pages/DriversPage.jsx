@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar";
 import './DriversPage.css';
 import AddDriverModal from "../components/AddDriverModal";
 import DriverSummaryModal from "../components/DriverSummaryModal";
+import Pagination from "../components/Pagination";
 import { useData } from "../context/DataContext";
 
 export default function DriversPage() {
@@ -11,6 +12,7 @@ export default function DriversPage() {
     const [showSummaryModal, setShowSummaryModal] = useState(false);
     const [selectedDriver, setSelectedDriver] = useState(null);
     const [modalMode, setModalMode] = useState("add");
+    const [currentPage, setCurrentPage] = useState(1);
 
     const [formData, setFormData] = useState({
         license_number: "",
@@ -181,6 +183,12 @@ export default function DriversPage() {
         console.error(error);
     }
 };
+
+    const itemsPerPage = 5;
+    const totalPages = Math.ceil(drivers.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentDrivers = drivers.slice(startIndex, startIndex + itemsPerPage);
+
     return (
         <>
             <Sidebar />
@@ -226,7 +234,7 @@ export default function DriversPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {drivers.map(driver => (
+                                    {currentDrivers.map(driver => (
                                         <tr
                                         key={driver.license_number}
                                         onClick={() => setSelectedDriver(driver)}
@@ -247,6 +255,11 @@ export default function DriversPage() {
                                 </tbody>
                             </table>
                         </div>
+                        <Pagination 
+                            currentPage={currentPage} 
+                            totalPages={totalPages} 
+                            onPageChange={setCurrentPage} 
+                        />
                     </div>
                 )}
             </div>

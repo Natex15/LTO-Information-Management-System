@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Sidebar from "../components/Sidebar";
+import Pagination from "../components/Pagination";
 import './ReportsPage.css';
 
 const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
@@ -19,6 +20,7 @@ export default function ReportsPage() {
     const [results, setResults] = useState(null);
     const [reportLoading, setReportLoading] = useState(false);
     const [reportError, setReportError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     // Filter states
     const [filters, setFilters] = useState({
@@ -44,6 +46,7 @@ export default function ReportsPage() {
         setReportLoading(true);
         setReportError(null);
         setResults(null);
+        setCurrentPage(1);
 
         const token = localStorage.getItem("token");
         const headers = { Authorization: `Bearer ${token}` };
@@ -196,6 +199,11 @@ export default function ReportsPage() {
             return <p className="noResults">No results found for this report.</p>;
         }
 
+        const itemsPerPage = 5;
+        const totalPages = Math.ceil(results.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const currentResults = results.slice(startIndex, startIndex + itemsPerPage);
+
         const columns = Object.keys(results[0]);
 
         return (
@@ -213,7 +221,7 @@ export default function ReportsPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {results.map((row, idx) => (
+                            {currentResults.map((row, idx) => (
                                 <tr key={idx}>
                                     {columns.map(col => (
                                         <td key={col}>
@@ -230,6 +238,11 @@ export default function ReportsPage() {
                         </tbody>
                     </table>
                 </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         );
     };
@@ -254,6 +267,7 @@ export default function ReportsPage() {
                                 setSelectedReport(report.id);
                                 setResults(null);
                                 setReportError(null);
+                                setCurrentPage(1);
                             }}
                         >
                             <h3>{report.name}</h3>
