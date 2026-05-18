@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from "../components/Sidebar";
 import './VehiclesPage.css';
 import AddVehicleModal from "../components/AddVehicleModal";
@@ -6,8 +6,7 @@ import Pagination from "../components/Pagination";
 import { useData } from "../context/DataContext";
 
 export default function VehiclesPage() {
-    // States
-    const { vehicles, setVehicles, loading, error } = useData();
+    const { vehicles, setVehicles, loading, error, loadVehicles } = useData();
     const [showModal, setShowModal] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [modalMode, setModalMode] = useState("add");
@@ -18,6 +17,7 @@ export default function VehiclesPage() {
         engine_number: "",
         chassis_number: "",
         color: "",
+        make: "",
         model: "",
         year: "",
         vehicle_type: "",
@@ -31,7 +31,6 @@ export default function VehiclesPage() {
         });
     };
 
-    // Create vehicle
     const handleCreateVehicle = async (e) => {
         e.preventDefault();
 
@@ -51,7 +50,7 @@ export default function VehiclesPage() {
             );
 
             if (!response.ok) {
-                throw new Error("Failed to create vehicle");
+                throw alert(new Error("Failed to create driver"));
             }
 
             const data = await response.json();
@@ -65,6 +64,7 @@ export default function VehiclesPage() {
                 engine_number: "",
                 chassis_number: "",
                 color: "",
+                make: "",
                 model: "",
                 year: "",
                 vehicle_type: "",
@@ -76,7 +76,6 @@ export default function VehiclesPage() {
         }
     };
 
-    // Delete vehicle
     const handleDeleteVehicle = async () => {
         if (!selectedVehicle) {
             return;
@@ -110,7 +109,6 @@ export default function VehiclesPage() {
         }
     };
 
-    // Prepares modal for updating
     const handleUpdateVehicle = async () => {
         if (!selectedVehicle) {
             return;
@@ -123,6 +121,7 @@ export default function VehiclesPage() {
             engine_number: selectedVehicle.engine_number,
             chassis_number: selectedVehicle.chassis_number,
             color: selectedVehicle.color,
+            make: selectedVehicle.make,
             model: selectedVehicle.model,
             year: selectedVehicle.year,
             vehicle_type: selectedVehicle.vehicle_type,
@@ -132,7 +131,6 @@ export default function VehiclesPage() {
         setShowModal(true);
     };
 
-    // Handles the update
     const handlePatchVehicle = async (e) => {
         e.preventDefault();
 
@@ -153,7 +151,8 @@ export default function VehiclesPage() {
             });
 
             if (!response.ok) {
-                throw new Error(`Failed to update vehicle: ${response.status}`);
+                throw alert(new Error("Failed to create driver"));
+                return;
             }
 
             const updatedVehicle = await response.json();
@@ -172,10 +171,46 @@ export default function VehiclesPage() {
         }
     };
 
+        const handleSearchVehicle = async (e) => {
+        const searchTerm = e.target.value;
+
+        try {
+            let url = "/api/vehicles";
+
+            if (searchTerm.trim() !== "") {
+                url = `/api/vehicles/search?plate_number=${encodeURIComponent(searchTerm)}`;
+            }
+
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to search vehicles");
+            }
+
+            const data = await response.json();
+
+            setVehicles(data);
+            setCurrentPage(1);
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const itemsPerPage = 5;
     const totalPages = Math.ceil(vehicles.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentVehicles = vehicles.slice(startIndex, startIndex + itemsPerPage);
+
+    useEffect(() => {
+        loadVehicles();
+        setSelectedVehicle(null);
+        setCurrentPage(1);
+    }, []);
 
     return (
         <>
@@ -186,40 +221,25 @@ export default function VehiclesPage() {
                         Registered Vehicles
                     </h2>
                     <div className="searchRow">
-                      <input
-                        type="text"
-                        className="searchBar"
-                        placeholder="Search by name"
-                        value={searchLicense}
-                        onChange={handleSearchByDriver}
-                      />
-                      <input
-                        type="date"
-                        className="searchBar"
-                        value={filterDate}
-                        onChange={(e) => { setFilterDate(e.target.value); setShowExpired(false); }}
-                        style={{ width: "140px" }}
-                      />
-                      <button className="violationSearchBtn"
-                        onClick={() => {
-                          setShowViolationModal(true);
-                          setViolationLocation("");
-                          setViolationVehicles([]);
-                          setViolationSearchError("");
-                        }}
-                      >Search Vehicles with Violations</button>
-                      <button className="fltrBtn" onClick={handleViewExpiredRegistrations}>
-                        {showExpired ? "Show All" : "Expired Registrations"}
-                      </button>
-                      <button className="sortBtn">Sort by</button>
-              <input type="text" className="searchBar" placeholder="Search by plate number..." onChange={handleSearchVehicle} />
-                      <button className="addBtn" onClick={() => { setModalMode("add"); setShowModal(true); }}>
-                        Add Vehicle
-                      </button>
-                      <button className="deleteBtn" onClick={handleDeleteVehicle}>Delete Vehicle</button>
-                      <button className="updateBtn" onClick={handleUpdateVehicle}>Update Vehicle</button>
+                        <input
+                            type="text"
+                            className="searchBar"
+                            placeholder="Search by plate number..."
+                            onChange={handleSearchVehicle}
+                        />
+                        <button
+                            className="addBtn"
+                            onClick={() => {
+                                setModalMode("add");
+                                setShowModal(true);
+                            }}
+                        >Add Vehicle
+                        </button>
+                        <button className="deleteBtn" onClick={handleDeleteVehicle}> Delete Vehicle</button>
+                        <button className="updateBtn" onClick={handleUpdateVehicle}>Update Vehicle</button>
                     </div>
                 </div>
+
                 {error ? (
                     <p style={{ color: 'red' }}>Failed to load vehicles: {error}</p>
                 ) : loading ? (
@@ -236,6 +256,7 @@ export default function VehiclesPage() {
                                         <th>Engine Number</th>
                                         <th>Chassis Number</th>
                                         <th>Color</th>
+                                        <th>Make</th>
                                         <th>Model</th>
                                         <th>Year</th>
                                         <th>Vehicle Type</th>
@@ -253,6 +274,7 @@ export default function VehiclesPage() {
                                             <td>{vehicle.engine_number}</td>
                                             <td>{vehicle.chassis_number}</td>
                                             <td>{vehicle.color}</td>
+                                            <td>{vehicle.make}</td>
                                             <td>{vehicle.model}</td>
                                             <td>{vehicle.year}</td>
                                             <td>{vehicle.vehicle_type}</td>
@@ -270,79 +292,7 @@ export default function VehiclesPage() {
                     </div>
                 )}
             </div>
-            {showViolationModal && (
-                <div className="modalOverlay">
-                    <div className="modalBox violationModalBox">
-                        <h2>Search Vehicles with Violations</h2>
 
-                        <form onSubmit={handleSearchVehiclesWithViolations}>
-                            <input
-                                type="text"
-                                placeholder="Enter city or region..."
-                                value={violationLocation}
-                                onChange={(e) => setViolationLocation(e.target.value)}
-                            />
-
-                            <div className="modalActions">
-                                <button type="submit" className="saveBtn">
-                                    Search
-                                </button>
-
-                                <button
-                                    type="button"
-                                    className="cancelBtn"
-                                    onClick={() => {
-                                        setShowViolationModal(false);
-                                        setViolationLocation("");
-                                        setViolationVehicles([]);
-                                        setViolationSearchError("");
-                                    }}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
-
-                        {violationSearchError && (
-                            <p className="violationError">{violationSearchError}</p>
-                        )}
-
-                        <div className="violationResults">
-                            {violationVehicles.length === 0 ? (
-                                <p className="noViolationResult">
-                                    No vehicles with violations found.
-                                </p>
-                            ) : (
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Plate Number</th>
-                                            <th>Model</th>
-                                            <th>Color</th>
-                                            <th>Vehicle Type</th>
-                                            <th>Violations Committed</th>
-                                            <th>Location</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        {violationVehicles.map((vehicle, index) => (
-                                            <tr key={`${vehicle.plate_number}-${index}`}>
-                                                <td>{vehicle.plate_number}</td>
-                                                <td>{vehicle.model}</td>
-                                                <td>{vehicle.color}</td>
-                                                <td>{vehicle.vehicle_type}</td>
-                                                <td>{vehicle.violation_types || "N/A"}</td>
-                                                <td>{vehicle.location}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
             <AddVehicleModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateVehicle={modalMode === "add" ? handleCreateVehicle : handlePatchVehicle} />
         </>
     );

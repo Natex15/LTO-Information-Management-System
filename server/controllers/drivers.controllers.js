@@ -94,6 +94,7 @@ export async function createDriver(req, res) {
 
     res.json(result.rows[0]);
   } catch (error) {
+    console.error("Add Driver Error:", error.message);
     res.status(500).json({ error: error.message });
   }
 }
@@ -115,7 +116,7 @@ export async function updateDriver(req, res) {
     res.json(result.rows[0]);
 
   } catch (error) {
-
+    console.error("Update Driver Error:", error.message);
     res.status(500).json({ error: error.message });
 
   }

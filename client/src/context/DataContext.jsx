@@ -9,45 +9,168 @@ export function DataProvider({ children }) {
     const [vehicles, setVehicles] = useState([]);
     const [violations, setViolations] = useState([]);
     const [registrations, setRegistrations] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const loadData = async () => {
+    const getHeaders = () => {
         const token = localStorage.getItem("token");
+
+        return {
+            Authorization: `Bearer ${token}`
+        };
+    };
+
+    const loadDrivers = async () => {
+        const token = localStorage.getItem("token");
+
         if (!token) {
             setLoading(false);
             return;
         }
 
-        setLoading(true);
         try {
-            const headers = { Authorization: `Bearer ${token}` };
-            const [driversRes, vehiclesRes, violationsRes, registrationsRes] = await Promise.all([
-                fetch(`${API_BASE}/api/drivers`, { headers }),
-                fetch(`${API_BASE}/api/vehicles`, { headers }),
-                fetch(`${API_BASE}/api/violations`, { headers }),
-                fetch(`${API_BASE}/api/registrations`, { headers })
-            ]);
+            setLoading(true);
 
-            if (!driversRes.ok) throw new Error('Failed to fetch drivers');
-            if (!vehiclesRes.ok) throw new Error('Failed to fetch vehicles');
-            if (!violationsRes.ok) throw new Error('Failed to fetch violations');
-            if (!registrationsRes.ok) throw new Error('Failed to fetch registrations');
+            const response = await fetch(`${API_BASE}/api/drivers`, {
+                headers: getHeaders()
+            });
 
-            const [driversData, vehiclesData, violationsData, registrationsData] = await Promise.all([
-                driversRes.json(),
-                vehiclesRes.json(),
-                violationsRes.json(),
-                registrationsRes.json()
-            ]);
+            if (!response.ok) {
+                throw new Error("Failed to fetch drivers");
+            }
 
-            setDrivers(driversData);
-            setVehicles(vehiclesData);
-            setViolations(violationsData);
-            setRegistrations(registrationsData);
+            const data = await response.json();
+
+            setDrivers(data);
             setError(null);
+
         } catch (err) {
-            console.error('Error fetching global data:', err);
+            console.error("Error fetching drivers:", err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadVehicles = async () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const response = await fetch(`${API_BASE}/api/vehicles`, {
+                headers: getHeaders()
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch vehicles");
+            }
+
+            const data = await response.json();
+
+            setVehicles(data);
+            setError(null);
+
+        } catch (err) {
+            console.error("Error fetching vehicles:", err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadViolations = async () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const response = await fetch(`${API_BASE}/api/violations`, {
+                headers: getHeaders()
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch violations");
+            }
+
+            const data = await response.json();
+
+            setViolations(data);
+            setError(null);
+
+        } catch (err) {
+            console.error("Error fetching violations:", err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadRegistrations = async () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const response = await fetch(`${API_BASE}/api/registrations`, {
+                headers: getHeaders()
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch registrations");
+            }
+
+            const data = await response.json();
+
+            setRegistrations(data);
+            setError(null);
+
+        } catch (err) {
+            console.error("Error fetching registrations:", err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadData = async () => {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            await Promise.all([
+                loadDrivers(),
+                loadVehicles(),
+                loadViolations(),
+                loadRegistrations()
+            ]);
+
+            setError(null);
+
+        } catch (err) {
+            console.error("Error fetching global data:", err);
             setError(err.message);
         } finally {
             setLoading(false);
@@ -59,7 +182,30 @@ export function DataProvider({ children }) {
     }, []);
 
     return (
-        <DataContext.Provider value={{ drivers, setDrivers, vehicles, setVehicles, violations, setViolations, registrations, setRegistrations, loading, error, loadData }}>
+        <DataContext.Provider
+            value={{
+                drivers,
+                setDrivers,
+
+                vehicles,
+                setVehicles,
+
+                violations,
+                setViolations,
+
+                registrations,
+                setRegistrations,
+
+                loading,
+                error,
+
+                loadDrivers,
+                loadVehicles,
+                loadViolations,
+                loadRegistrations,
+                loadData
+            }}
+        >
             {children}
         </DataContext.Provider>
     );

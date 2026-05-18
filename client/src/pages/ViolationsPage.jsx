@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from "../components/Sidebar";
 import Pagination from "../components/Pagination";
 import './ViolationsPage.css';
@@ -24,7 +24,7 @@ const VIOLATION_TYPE_OPTIONS = [
 ];
 
 export default function ViolationsPage() {
-    const { violations, setViolations, loading, error } = useData();
+    const { violations, setViolations, loading, error, loadViolations } = useData();
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState("add");
     const [selectedViolation, setSelectedViolation] = useState(null);
@@ -97,7 +97,7 @@ export default function ViolationsPage() {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify(formData)
             });
-            if (!response.ok) throw new Error("Failed to update violation");
+            if (!response.ok) throw alert(new Error("Failed to update violation"));
             const updated = await response.json();
             setViolations(prev => prev.map(v => v.violation_id === selectedViolation.violation_id ? updated : v));
             setShowModal(false);
@@ -168,23 +168,25 @@ export default function ViolationsPage() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentViolations = filteredViolations.slice(startIndex, startIndex + itemsPerPage);
 
+    useEffect(() => {
+        loadViolations();
+        setSelectedViolation(null);
+        setCurrentPage(1);
+    }, []);
+
     return (
         <>
             <Sidebar />
-
             <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
                 <div className="headerRow">
                     <h2 style={{ marginBottom: "10px", userSelect: "none", fontSize: "30px", marginLeft: "11px", color: "#FFFFFF" }}>
                         Violations
                     </h2>
-
                     <div className="searchRow">
-                      <button className="violationTypeBtn" onClick={handleOpenViolationTypeModal}>Violations by Type</button>
-                        <button className="sortBtn">Sort by</button>
                         <input
                             type="text"
                             className="searchBar"
-                            placeholder="Search violations..."
+                            placeholder="Search by plate number..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -221,26 +223,29 @@ export default function ViolationsPage() {
                                         <th>Plate #</th>
                                     </tr>
                                 </thead>
-
-                                <tbody>
-                                    {currentViolations.map((violation) => (
-                                        <tr
-                                            key={violation.violation_id}
-                                            onClick={() => setSelectedViolation(violation)}
-                                            className={selectedViolation?.violation_id === violation.violation_id ? "selectedRow" : ""}
-                                        >
-                                            <td>{violation.violation_id}</td>
-                                            <td>{violation?.violation_types?.length > 0 ? violation.violation_types.join(', ') : 'N/A'}</td>
-                                            <td><span className={`statusBadge ${getStatusClass(violation.violation_status)}`}>{violation.violation_status}</span></td>
-                                            <td>₱{Number(violation.corresponding_fine_amount).toLocaleString()}</td>
-                                            <td>{violation.apprehending_officer || '—'}</td>
-                                            <td>{formatDate(violation.date)}</td>
-                                            <td>{violation.location}</td>
-                                            <td>{violation.license_number}</td>
-                                            <td>{violation.plate_number}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
+                            <tbody>
+                                {currentViolations.map((violation) => (
+                                    <tr
+                                        key={violation.violation_id}
+                                        onClick={() => setSelectedViolation(violation)}
+                                        className={selectedViolation?.violation_id === violation.violation_id ? "selectedRow" : ""}
+                                    >
+                                        <td>{violation.violation_id}</td>
+                                        <td>{violation?.violation_types?.length > 0 ? violation.violation_types.join(', ') : 'N/A'}</td>
+                                        <td>
+                                            <span className={`statusBadge ${getStatusClass(violation.violation_status)}`}>
+                                                {violation.violation_status}
+                                            </span>
+                                        </td>
+                                        <td>₱{Number(violation.corresponding_fine_amount).toLocaleString()}</td>
+                                        <td>{violation.apprehending_officer || '—'}</td>
+                                        <td>{formatDate(violation.date)}</td>
+                                        <td>{violation.location}</td>
+                                        <td>{violation.license_number}</td>
+                                        <td>{violation.plate_number}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
                             </table>
                         </div>
                         <Pagination 

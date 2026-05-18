@@ -58,26 +58,41 @@ export async function addVehicle(req, res) {
 
     res.json(result.rows[0]);
   } catch (error) {
+    console.error("Add Vehicle Error:", error.message);
+    if (error.code === "23505") {
+      return res.status(409).json({
+        error: "Duplicate vehicle found. Plate number, engine number, or chassis number already exists."
+      });
+    }
+
     res.status(500).json({ error: error.message });
   }
 }
 
 export async function updateVehicle(req, res) {
   try {
-    const {plate_number} = req.params;
+    const {plate_number: old_plate_number} = req.params;
 
-    const {engine_number, chassis_number, color, make, model, year, vehicle_type, license_number} = req.body;
+    const {plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number} = req.body;
 
-    const query = `UPDATE vehicle SET engine_number = $1, chassis_number = $2, color = $3, make = $4, model = $5, year = $6, vehicle_type = $7, license_number = $8
-      WHERE plate_number = $9 RETURNING *`;
+    const query = `UPDATE vehicle SET plate_number = $1, engine_number = $2, chassis_number = $3, color = $4, make = $5, model = $6, year = $7, vehicle_type = $8, license_number = $9
+      WHERE plate_number = $10 RETURNING *`;
 
-    const values = [engine_number, chassis_number, color, make, model, year, vehicle_type, license_number, plate_number];
+    
+    const values = [plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number, old_plate_number];
 
     const result = await pool.query(query, values);
 
     res.json(result.rows[0]);
 
   } catch (error) {
+    if (error.code === "23505") {
+      console.error("Update Vehicle Error:", error.message);
+      return res.status(409).json({
+        error: "Duplicate vehicle found. Engine number or chassis number already exists."
+      });
+    }
+
     res.status(500).json({ error: error.message });
   }
 }
