@@ -71,12 +71,38 @@ export async function deleteVehicle(req, res){
     }
 
     res.json({message: "Vehicle deleted successfully"});
-    
+
   }catch(error){
     res.status(500).json({success: false, error: error.message});
   }
 }
 
+export async function getExpiredRegistrations(req, res) {
+  try {
+    const { date } = req.query;
+    const result = await pool.query(
+      `SELECT v.* FROM vehicle v JOIN registration r ON v.plate_number = r.plate_number WHERE r.expiration_date <= $1`, [date]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export async function getVehiclesByDriver(req, res) {
+  try {
+    const { driverName } = req.query;
+    const result = await pool.query(
+      `SELECT v.* FROM vehicle v
+       JOIN driver d ON v.license_number = d.license_number
+       WHERE d.full_name ILIKE $1`,
+      [`%${driverName}%`]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
 export async function searchVehicle(req, res) {
 
   try {
@@ -87,7 +113,7 @@ export async function searchVehicle(req, res) {
     const values = [`%${plate_number}%`];
 
     const result = await pool.query(query, values);
-    
+
      res.json(result.rows);
 
   } catch (error) {
@@ -109,7 +135,7 @@ export async function findVehicleViolation(req, res) {
     }
 
     const query = `
-      SELECT 
+      SELECT
         v.plate_number,
         v.color,
         v.model,
@@ -117,12 +143,12 @@ export async function findVehicleViolation(req, res) {
         STRING_AGG(t.violation_type, ', ') AS violation_types,
         i.location
       FROM vehicle v
-      JOIN violation i 
+      JOIN violation i
         ON v.plate_number = i.plate_number
-      JOIN violation_type t 
+      JOIN violation_type t
         ON t.violation_id = i.violation_id
       WHERE i.location ILIKE $1
-      GROUP BY 
+      GROUP BY
         v.plate_number,
         v.color,
         v.model,

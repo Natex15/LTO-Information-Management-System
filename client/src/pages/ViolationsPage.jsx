@@ -20,6 +20,12 @@ export default function ViolationsPage() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentViolations = violations.slice(startIndex, startIndex + itemsPerPage);
 
+    const [showViolationTypeModal, setShowViolationTypeModal] = useState(false);
+    const [availableYears, setAvailableYears] = useState([]);
+    const [selectedYear, setSelectedYear] = useState("");
+    const [violationTypeCounts, setViolationTypeCounts] = useState([]);
+    const [violationTypeError, setViolationTypeError] = useState("");
+
     // Searching violation by plate num
     const handleSearchViolation = async (e) => {
         const searchTerm = e.target.value;
@@ -99,6 +105,39 @@ export default function ViolationsPage() {
         }
     };
 
+    const handleOpenViolationTypeModal = async () => {
+    setShowViolationTypeModal(true);
+    setViolationTypeCounts([]);
+    setViolationTypeError("");
+    try {
+        const response = await fetch("/api/violations/years", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        const data = await response.json();
+        setAvailableYears(data);
+        setSelectedYear(data[0] ?? "");
+    } catch (error) {
+        setViolationTypeError(error.message || "Failed to load years.");
+    }
+};
+
+    const handleSearchViolationTypes = async (e) => {
+      e.preventDefault();
+      if (!selectedYear) { setViolationTypeError("Please select a year."); return; }
+      try {
+        setViolationTypeError("");
+        const response = await fetch(
+            `/api/violations/count-by-type?year=${selectedYear}`,
+            { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        );
+        if (!response.ok) throw new Error("Failed to fetch violation counts");
+        const data = await response.json();
+        setViolationTypeCounts(data);
+      } catch (error) {
+        setViolationTypeError(error.message || "Failed to fetch violation counts.");
+      }
+    };
+
     return (
         <>
             <Sidebar />
@@ -110,6 +149,7 @@ export default function ViolationsPage() {
                     </h2>
 
                     <div className="searchRow">
+                      <button className="violationTypeBtn" onClick={handleOpenViolationTypeModal}>Violations by Type</button>
                         <button className="sortBtn">Sort by</button>
                         <button
                             className="driverViolationSearchBtn"
@@ -208,7 +248,7 @@ export default function ViolationsPage() {
                     </div>
                 )}
             </div>
-            
+
             {showDriverViolationModal && (
                 <div className="modalOverlay">
                     <div className="modalBox driverViolationModalBox">
@@ -301,7 +341,61 @@ export default function ViolationsPage() {
                         </div>
                     </div>
                 </div>
-            )}
-        </>
+        )}
+        {showViolationTypeModal && (
+    <div className="modalOverlay">
+        <div className="modalBox driverViolationModalBox">
+            <h2>Violations by Type</h2>
+            <form onSubmit={handleSearchViolationTypes}>
+                <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                >
+                    {availableYears.map(year => (
+                        <option key={year} value={year}>{year}</option>
+                    ))}
+                </select>
+                <div className="modalActions">
+                    <button type="submit" className="saveBtn">Search</button>
+                    <button
+                        type="button"
+                        className="cancelBtn"
+                        onClick={() => {
+                            setShowViolationTypeModal(false);
+                            setViolationTypeCounts([]);
+                            setViolationTypeError("");
+                        }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </form>
+            {violationTypeError && <p className="driverViolationError">{violationTypeError}</p>}
+            <div className="driverViolationResults">
+                {violationTypeCounts.length === 0 ? (
+                    <p className="noDriverViolationResult">No data found for this year.</p>
+                ) : (
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Violation Type</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {violationTypeCounts.map((row, index) => (
+                                <tr key={index}>
+                                    <td>{row.violation_type}</td>
+                                    <td>{row.count}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </>
     );
 }

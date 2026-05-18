@@ -12,12 +12,23 @@ export default function DriversPage() {
     const [selectedDriver, setSelectedDriver] = useState(null);
     const [modalMode, setModalMode] = useState("add");
     const [currentPage, setCurrentPage] = useState(1);
+    const [showExpiredSuspended, setShowExpiredSuspended] = useState(false);
+    const [filterOptions, setFilterOptions] = useState({ licenseTypes: [], licenseStatuses: [], sexes: [] });
+    const [activeFilterType, setActiveFilterType] = useState(null);
+    const [minAge, setMinAge] = useState("");
+    const [maxAge, setMaxAge] = useState("");
+    const [isFiltered, setIsFiltered] = useState(false);
 
     const driversPerPage = 5;
-    const totalPages = Math.ceil(drivers.length / driversPerPage);
+
+    const displayedDrivers = showExpiredSuspended ? drivers.filter(
+      d => d.license_status === "Expired" || d.license_status === "Suspended"
+    ) : drivers;
+
+    const totalPages = Math.ceil(displayedDrivers.length / driversPerPage);
     const indexOfLastDriver = currentPage * driversPerPage;
     const indexOfFirstDriver = indexOfLastDriver - driversPerPage;
-    const currentDrivers = drivers.slice(indexOfFirstDriver, indexOfLastDriver);
+    const currentDrivers = displayedDrivers.slice(indexOfFirstDriver, indexOfLastDriver);
 
     const [formData, setFormData] = useState({
         license_number: "",
@@ -197,6 +208,53 @@ export default function DriversPage() {
         }
     };
 
+    const handleOpenFilter = async (type) => {
+    if (activeFilterType === type) { setActiveFilterType(null); return; }
+    setActiveFilterType(type);
+    if (filterOptions.licenseTypes.length === 0) {
+        try {
+            const response = await fetch("/api/drivers/filter-options", {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            });
+            const data = await response.json();
+            setFilterOptions(data);
+        } catch (err) { console.error(err); }
+    }
+};
+
+const handleFilter = async (type, value) => {
+    try {
+        let url = `/api/drivers/filter?filter_type=${type}`;
+        if (type === "age_range") {
+            url += `&min_age=${minAge}&max_age=${maxAge}`;
+        } else {
+            url += `&filter_value=${encodeURIComponent(value)}`;
+        }
+        const response = await fetch(url, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        const data = await response.json();
+        setDrivers(data);
+        setCurrentPage(1);
+        setIsFiltered(true);
+        setActiveFilterType(null);
+      } catch (err) { console.error(err); }
+    };
+
+    const handleClearFilter = async () => {
+      try {
+        const response = await fetch("/api/drivers", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        const data = await response.json();
+        setDrivers(data);
+        setIsFiltered(false);
+        setActiveFilterType(null);
+        setMinAge("");
+        setMaxAge("");
+      } catch (err) { console.error(err); }
+    };
+
     return (
         <>
             <Sidebar />
@@ -204,25 +262,48 @@ export default function DriversPage() {
                 <div className="headerRow">
                     <h2 style={{ marginBottom: "10px", userSelect: "none", fontSize: "30px", marginLeft: "11px", color: "#FFFFFF" }}>Registered Drivers</h2>
                     <div className="searchRow">
-                        <button className="sortBtn">Sort by</button>
-                        <input
-                            type="text"
-                            className="searchBar"
-                            placeholder="Search by driver name..."
-                            onChange={handleSearchDriver}
-                        />
-                        <button
-                            className="addBtn"
-                            onClick={() => {
-                                setModalMode("add");
-                                setShowModal(true);
-                            }}
-                        >
-                            Add Driver
-                        </button>
-                        <button className="deleteBtn" onClick={handleDeleteDriver}>Delete Driver</button>
-                        <button className="updateBtn" onClick={handleUpdateDriver}>Update Driver</button>
+                      <button className="fltrBtn" onClick={() => setShowExpiredSuspended(prev => !prev)}>
+                        {showExpiredSuspended ? "Show All" : "Expired / Suspended"}
+                      </button>
+                      <button className="sortBtn" onClick={() => handleOpenFilter("license_type")}>License Type</button>
+                      <button className="sortBtn" onClick={() => handleOpenFilter("license_status")}>License Status</button>
+                      <button className="sortBtn" onClick={() => handleOpenFilter("sex")}>Sex</button>
+                      <button className="sortBtn" onClick={() => handleOpenFilter("age_range")}>Age Range</button>
+                      {isFiltered && <button className="deleteBtn" onClick={handleClearFilter}>Clear Filter</button>}
+                      <input type="text" className="searchBar" placeholder="Search by driver name..." onChange={handleSearchDriver} />
+                      <button className="addBtn" onClick={() => { setModalMode("add"); setShowModal(true); }}>Add Driver</button>
+                      <button className="deleteBtn" onClick={handleDeleteDriver}>Delete Driver</button>
+                      <button className="updateBtn" onClick={handleUpdateDriver}>Update Driver</button>
                     </div>
+
+                    {activeFilterType === "license_type" && (
+                      <div className="filterPills">
+                        {filterOptions.licenseTypes.map(type => (
+                          <button key={type} className="fltrBtn" onClick={() => handleFilter("license_type", type)}>{type}</button>
+                        ))}
+                      </div>
+                    )}
+                    {activeFilterType === "license_status" && (
+                      <div className="filterPills">
+                        {filterOptions.licenseStatuses.map(status => (
+                          <button key={status} className="fltrBtn" onClick={() => handleFilter("license_status", status)}>{status}</button>
+                        ))}
+                      </div>
+                    )}
+                    {activeFilterType === "sex" && (
+                      <div className="filterPills">
+                        {filterOptions.sexes.map(sex => (
+                          <button key={sex} className="fltrBtn" onClick={() => handleFilter("sex", sex)}>{sex}</button>
+                        ))}
+                      </div>
+                    )}
+                    {activeFilterType === "age_range" && (
+                      <div className="filterPills">
+                        <input type="number" placeholder="Min age" value={minAge} onChange={(e) => setMinAge(e.target.value)} />
+                        <input type="number" placeholder="Max age" value={maxAge} onChange={(e) => setMaxAge(e.target.value)} />
+                        <button className="fltrBtn" onClick={() => handleFilter("age_range")}>Apply</button>
+                      </div>
+                    )}
                 </div>
 
                 {error ? (
