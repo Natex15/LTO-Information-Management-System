@@ -60,6 +60,15 @@ export default function AddVehicleModal({
 
                     <input
                         type="text"
+                        name="make"
+                        placeholder="Make"
+                        value={formData.make}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    <input
+                        type="text"
                         name="model"
                         placeholder="Model"
                         value={formData.model}

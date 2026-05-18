@@ -17,6 +17,7 @@ export default function VehiclesPage() {
         engine_number: "",
         chassis_number: "",
         color: "",
+        make: "",
         model: "",
         year: "",
         vehicle_type: "",
@@ -49,7 +50,7 @@ export default function VehiclesPage() {
             );
 
             if (!response.ok) {
-                throw new Error("Failed to create vehicle");
+                throw alert(new Error("Failed to create driver"));
             }
 
             const data = await response.json();
@@ -63,6 +64,7 @@ export default function VehiclesPage() {
                 engine_number: "",
                 chassis_number: "",
                 color: "",
+                make: "",
                 model: "",
                 year: "",
                 vehicle_type: "",
@@ -119,6 +121,7 @@ export default function VehiclesPage() {
             engine_number: selectedVehicle.engine_number,
             chassis_number: selectedVehicle.chassis_number,
             color: selectedVehicle.color,
+            make: selectedVehicle.make,
             model: selectedVehicle.model,
             year: selectedVehicle.year,
             vehicle_type: selectedVehicle.vehicle_type,
@@ -148,7 +151,8 @@ export default function VehiclesPage() {
             });
 
             if (!response.ok) {
-                throw new Error(`Failed to update vehicle: ${response.status}`);
+                throw alert(new Error("Failed to create driver"));
+                return;
             }
 
             const updatedVehicle = await response.json();
@@ -252,6 +256,7 @@ export default function VehiclesPage() {
                                         <th>Engine Number</th>
                                         <th>Chassis Number</th>
                                         <th>Color</th>
+                                        <th>Make</th>
                                         <th>Model</th>
                                         <th>Year</th>
                                         <th>Vehicle Type</th>
@@ -269,6 +274,7 @@ export default function VehiclesPage() {
                                             <td>{vehicle.engine_number}</td>
                                             <td>{vehicle.chassis_number}</td>
                                             <td>{vehicle.color}</td>
+                                            <td>{vehicle.make}</td>
                                             <td>{vehicle.model}</td>
                                             <td>{vehicle.year}</td>
                                             <td>{vehicle.vehicle_type}</td>

@@ -97,7 +97,7 @@ export default function ViolationsPage() {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify(formData)
             });
-            if (!response.ok) throw new Error("Failed to update violation");
+            if (!response.ok) throw alert(new Error("Failed to update violation"));
             const updated = await response.json();
             setViolations(prev => prev.map(v => v.violation_id === selectedViolation.violation_id ? updated : v));
             setShowModal(false);
