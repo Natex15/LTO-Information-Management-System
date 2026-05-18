@@ -4,6 +4,8 @@ import Dashboard from "./pages/Dashboard";
 import DriversPage from "./pages/DriversPage";
 import VehiclesPage from "./pages/VehiclesPage";
 import ViolationsPage from "./pages/ViolationsPage";
+import VehicleRegistrationsPage from "./pages/VehicleRegistrationsPage";
+import ReportsPage from "./pages/ReportsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { DataProvider } from "./context/DataContext";
 
@@ -22,7 +24,9 @@ function App() {
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/drivers" element={<DriversPage />} />
                     <Route path="/vehicles" element={<VehiclesPage />} />
+                    <Route path="/registrations" element={<VehicleRegistrationsPage />} />
                     <Route path="/violations" element={<ViolationsPage />} />
+                    <Route path="/reports" element={<ReportsPage />} />
                 </Route>
             </Routes>
     );

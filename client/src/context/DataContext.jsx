@@ -8,6 +8,7 @@ export function DataProvider({ children }) {
     const [drivers, setDrivers] = useState([]);
     const [vehicles, setVehicles] = useState([]);
     const [violations, setViolations] = useState([]);
+    const [registrations, setRegistrations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -21,25 +22,29 @@ export function DataProvider({ children }) {
         setLoading(true);
         try {
             const headers = { Authorization: `Bearer ${token}` };
-            const [driversRes, vehiclesRes, violationsRes] = await Promise.all([
+            const [driversRes, vehiclesRes, violationsRes, registrationsRes] = await Promise.all([
                 fetch(`${API_BASE}/api/drivers`, { headers }),
                 fetch(`${API_BASE}/api/vehicles`, { headers }),
-                fetch(`${API_BASE}/api/violations`, { headers })
+                fetch(`${API_BASE}/api/violations`, { headers }),
+                fetch(`${API_BASE}/api/registrations`, { headers })
             ]);
 
             if (!driversRes.ok) throw new Error('Failed to fetch drivers');
             if (!vehiclesRes.ok) throw new Error('Failed to fetch vehicles');
             if (!violationsRes.ok) throw new Error('Failed to fetch violations');
+            if (!registrationsRes.ok) throw new Error('Failed to fetch registrations');
 
-            const [driversData, vehiclesData, violationsData] = await Promise.all([
+            const [driversData, vehiclesData, violationsData, registrationsData] = await Promise.all([
                 driversRes.json(),
                 vehiclesRes.json(),
-                violationsRes.json()
+                violationsRes.json(),
+                registrationsRes.json()
             ]);
 
             setDrivers(driversData);
             setVehicles(vehiclesData);
             setViolations(violationsData);
+            setRegistrations(registrationsData);
             setError(null);
         } catch (err) {
             console.error('Error fetching global data:', err);
@@ -54,7 +59,7 @@ export function DataProvider({ children }) {
     }, []);
 
     return (
-        <DataContext.Provider value={{ drivers, setDrivers, vehicles, setVehicles, violations, setViolations, loading, error, loadData }}>
+        <DataContext.Provider value={{ drivers, setDrivers, vehicles, setVehicles, violations, setViolations, registrations, setRegistrations, loading, error, loadData }}>
             {children}
         </DataContext.Provider>
     );

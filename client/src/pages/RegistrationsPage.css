@@ -1,3 +1,85 @@
+/* Registrations Page — Consistent dark glassmorphic style */
+
+.regTableContainer {
+  width: 100%;
+  background-color: #222222;
+  border-radius: 25px;
+  border: 1px solid #FFFFFF33;
+  overflow: hidden;
+}
+
+.regTable table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  user-select: none;
+}
+
+.regTable th,
+.regTable td {
+  padding: 16px 20px;
+  text-align: center;
+  color: #FFFFFF;
+  font-size: 14px;
+}
+
+.regTable thead th {
+  background-color: #2e2e2e;
+}
+
+.regTable thead th:first-child {
+  border-top-left-radius: 25px;
+}
+
+.regTable thead th:last-child {
+  border-top-right-radius: 25px;
+}
+
+.regTable tbody tr td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.regTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.regTable tbody tr:hover {
+  background-color: #181818;
+  cursor: pointer;
+}
+
+/* Status badges */
+.statusBadge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.reg-status-active {
+    background-color: #2d5016;
+    color: #90ee90;
+}
+
+.reg-status-expired {
+    background-color: #5a1a1a;
+    color: #ff6b6b;
+}
+
+.reg-status-suspended {
+    background-color: #5a3d1a;
+    color: #ffa500;
+}
+
+.expired-date {
+    color: #ff6b6b !important;
+    font-weight: 600;
+}
+
+/* Shared styles (same as other pages) */
 .headerRow {
   display: flex;
   justify-content: space-between;
@@ -14,11 +96,9 @@
     border: 2px solid #FFFFFF33;
     background-color: #222222;
     color: #FFFFFF;
-    padding-left: 10px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    padding-right: 10px;
+    padding: 3px 10px;
     user-select: none;
+    cursor: pointer;
 }
 
 .sortBtn:hover {
@@ -29,10 +109,7 @@
     border: 2px solid #FFFFFF33;
     background-color: #222222;
     color: #FFFFFF;
-    padding-left: 10px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    padding-right: 10px;
+    padding: 3px 10px;
     user-select: none;
 }
 
@@ -44,10 +121,7 @@
     border: 2px solid #FFFFFF33;
     background-color: #222222;
     color: #FFFFFF;
-    padding-left: 10px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    padding-right: 10px;
+    padding: 3px 10px;
     user-select: none;
 }
 
@@ -59,10 +133,7 @@
     border: 2px solid #FFFFFF33;
     background-color: #222222;
     color: #FFFFFF;
-    padding-left: 10px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    padding-right: 10px;
+    padding: 3px 10px;
     user-select: none;
 }
 
@@ -74,10 +145,7 @@
     border: 2px solid #FFFFFF33;
     background-color: #222222;
     color: #FFFFFF;
-    padding-left: 10px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    padding-right: 10px;
+    padding: 3px 10px;
     user-select: none;
 }
 
@@ -85,90 +153,11 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
-.vehicleTableContainer {
-  width: 100%;
-  background-color: #222222;
-  border-radius: 25px;
-  border: 1px solid #FFFFFF33;
-  overflow: hidden;
-}
-
-.vehicleTable table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-
-.vehicleTable th,
-.vehicleTable td {
-  padding: 16px 20px;
-  text-align: center;
-  font-size: 14px;
-  color: #FFFFFF;
-  word-wrap: break-word;
-}
-
-.vehicleTable thead th {
-  background-color: #2e2e2e;
-}
-
-.vehicleTable thead th:first-child {
-  border-top-left-radius: 25px;
-}
-
-.vehicleTable thead th:last-child {
-  border-top-right-radius: 25px;
-}
-
-.vehicleTable tbody tr td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.vehicleTable tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.vehicleTable tbody tr:hover {
-  background-color: #181818;
-  cursor: pointer;
-}
-
-.vehicleTable td,
-.vehicleTable th {
-  user-select: none;
-}
-
 .selectedRow {
-  background-color: #353535 !important;
+    background-color: #353535 !important;
 }
 
-/* Status badges */
-.statusBadge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.status-paid {
-    background-color: #2d5016;
-    color: #90ee90;
-}
-
-.status-unpaid {
-    background-color: #5a1a1a;
-    color: #ff6b6b;
-}
-
-.status-contested {
-    background-color: #5a3d1a;
-    color: #ffa500;
-}
-
-/* Modal styles */
+/* Modal */
 .modalOverlay {
     position: fixed;
     inset: 0;
@@ -180,7 +169,7 @@
 }
 
 .modalBox {
-    width: 550px;
+    width: 500px;
     max-height: 85vh;
     overflow-y: auto;
     background-color: #222222;
@@ -223,6 +212,11 @@
     border: 2px solid #FFFFFF;
 }
 
+.modalBox input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .modalBox select {
     cursor: pointer;
 }
@@ -257,43 +251,10 @@
     background-color: #181818;
 }
 
-/* Violation types checkbox grid */
-.violationTypesGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    background-color: #2e2e2e;
-    padding: 14px;
-    border-radius: 10px;
-    border: 2px solid #FFFFFF33;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.checkboxLabel {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #FFFFFF;
-    cursor: pointer;
-}
-
-.checkboxLabel input[type="checkbox"] {
-    accent-color: #4ade80;
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-}
-
 @media (max-width: 1200px) {
-  .vehicleTable th,
-  .vehicleTable td {
+  .regTable th,
+  .regTable td {
     padding: 12px 14px;
     font-size: 13px;
-  }
-
-  .searchBar {
-    width: 220px;
   }
 }

@@ -18,7 +18,7 @@ export default function DriversPage() {
         sex: "",
         address: "",
         date_of_birth: "",
-        track_license_number: "",
+        issuance_date: "",
         license_status: "",
         license_type: "",
         expiration_date: ""
@@ -69,7 +69,7 @@ export default function DriversPage() {
                 sex: "",
                 address: "",
                 date_of_birth: "",
-                track_license_number: "",
+                issuance_date: "",
                 license_status: "",
                 license_type: "",
                 expiration_date: ""
@@ -134,7 +134,7 @@ export default function DriversPage() {
             sex: selectedDriver.sex,
             address: selectedDriver.address,
             date_of_birth: selectedDriver.date_of_birth?.split("T")[0],
-            track_license_number: selectedDriver.track_license_number,
+            issuance_date: selectedDriver.issuance_date?.split("T")[0] || "",
             license_status: selectedDriver.license_status,
             license_type: selectedDriver.license_type,
             expiration_date: selectedDriver.expiration_date?.split("T")[0]
@@ -219,7 +219,7 @@ export default function DriversPage() {
                                         <th>Sex</th>
                                         <th>Address</th>
                                         <th>Date of Birth</th>
-                                        <th>Track License Number</th>
+                                        <th>Issuance Date</th>
                                         <th>License Status</th>
                                         <th>License Type</th>
                                         <th>Expiration Date</th>
@@ -238,7 +238,7 @@ export default function DriversPage() {
                                             <td>{driver.sex}</td>
                                             <td>{driver.address}</td>
                                             <td>{new Date(driver.date_of_birth).toISOString().split("T")[0]}</td>
-                                            <td>{driver.track_license_number}</td>
+                                            <td>{driver.issuance_date ? new Date(driver.issuance_date).toISOString().split("T")[0] : 'N/A'}</td>
                                             <td>{driver.license_status}</td>
                                             <td>{driver.license_type}</td>
                                             <td>{new Date(driver.expiration_date).toISOString().split("T")[0]}</td>
