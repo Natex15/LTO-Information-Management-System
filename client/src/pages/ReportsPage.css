@@ -1,0 +1,235 @@
+/* Reports Page — Dark glassmorphic design */
+
+/* Report type selection cards */
+.reportCardsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.reportCard {
+    background-color: #222222;
+    border: 1px solid #FFFFFF22;
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    user-select: none;
+}
+
+.reportCard:hover {
+    border-color: #FFFFFF55;
+    background-color: #2a2a2a;
+    transform: translateY(-2px);
+}
+
+.reportCard h3 {
+    color: #FFFFFF;
+    font-size: 16px;
+    margin: 0 0 8px 0;
+}
+
+.reportCard p {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.reportCardActive {
+    border-color: #4ade80 !important;
+    background-color: rgba(74, 222, 128, 0.08) !important;
+}
+
+.reportCardActive h3 {
+    color: #4ade80;
+}
+
+/* Filter section */
+.reportFilterSection {
+    background-color: #222222;
+    border: 1px solid #FFFFFF22;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.filterTitle {
+    color: #FFFFFF;
+    font-size: 20px;
+    margin: 0 0 16px 0;
+}
+
+.reportFilters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.reportFilters input,
+.reportFilters select {
+    border: 2px solid #FFFFFF33;
+    background-color: #2e2e2e;
+    color: #FFFFFF;
+    padding: 10px 12px;
+    border-radius: 10px;
+    outline: none;
+    transition: 0.2s ease;
+    min-width: 160px;
+}
+
+.reportFilters input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.reportFilters input:focus,
+.reportFilters select:focus {
+    border-color: #FFFFFF;
+}
+
+.reportFilters select {
+    cursor: pointer;
+}
+
+.reportFilters label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    margin-left: 4px;
+}
+
+.filterHint {
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+    font-size: 14px;
+    margin: 0;
+}
+
+.runReportBtn {
+    background: linear-gradient(135deg, #4ade80, #22c55e);
+    color: #111;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.runReportBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(74, 222, 128, 0.3);
+}
+
+.runReportBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Error message */
+.reportError {
+    background-color: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+}
+
+.reportError p {
+    color: #ff6b6b;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Results */
+.reportResultsContainer {
+    background-color: #222222;
+    border: 1px solid #FFFFFF22;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.reportResultsHeader {
+    padding: 16px 20px;
+    border-bottom: 1px solid #FFFFFF15;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.resultsCount {
+    color: #4ade80;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.reportTableWrap {
+    overflow-x: auto;
+}
+
+.reportTable {
+    width: 100%;
+    border-collapse: collapse;
+    user-select: none;
+}
+
+.reportTable th {
+    background-color: #2e2e2e;
+    color: #FFFFFF;
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.reportTable td {
+    color: #FFFFFF;
+    padding: 12px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.reportTable tbody tr:hover {
+    background-color: #181818;
+}
+
+.reportTable tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.noResults {
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 15px;
+}
+
+/* Reuse shared styles */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 800px) {
+    .reportCardsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .reportFilters {
+        flex-direction: column;
+    }
+
+    .reportFilters input,
+    .reportFilters select {
+        width: 100%;
+    }
+}

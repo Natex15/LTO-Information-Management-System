@@ -78,11 +78,12 @@ export default function AddDriverModal({
                         required
                     />
 
+                    <label>Issuance Date</label>
+
                     <input
-                        type="text"
-                        name="track_license_number"
-                        placeholder="Track License Number"
-                        value={formData.track_license_number}
+                        type="date"
+                        name="issuance_date"
+                        value={formData.issuance_date}
                         onChange={handleChange}
                     />
 

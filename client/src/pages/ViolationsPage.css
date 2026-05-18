@@ -21,6 +21,54 @@
     user-select: none;
 }
 
+.sortBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
+.addBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.addBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
+.deleteBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.deleteBtn:hover {
+    border: 1px solid #FFFFFF;
+}
+
+.updateBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding-left: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.updateBtn:hover {
+    border: 1px solid #FFFFFF;
+}
 
 .searchBar {
     border: 2px solid #FFFFFF33;
@@ -55,7 +103,7 @@
 .vehicleTable td {
   padding: 16px 20px;
   text-align: center;
-  font-size: 18px;
+  font-size: 14px;
   color: #FFFFFF;
   word-wrap: break-word;
 }
@@ -80,16 +128,169 @@
   border-bottom: none;
 }
 
+.vehicleTable tbody tr:hover {
+  background-color: #181818;
+  cursor: pointer;
+}
+
 .vehicleTable td,
 .vehicleTable th {
   user-select: none;
+}
+
+.selectedRow {
+  background-color: #353535 !important;
+}
+
+/* Status badges */
+.statusBadge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-paid {
+    background-color: #2d5016;
+    color: #90ee90;
+}
+
+.status-unpaid {
+    background-color: #5a1a1a;
+    color: #ff6b6b;
+}
+
+.status-contested {
+    background-color: #5a3d1a;
+    color: #ffa500;
+}
+
+/* Modal styles */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modalBox {
+    width: 550px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background-color: #222222;
+    border: 1px solid #FFFFFF33;
+    border-radius: 25px;
+    padding: 25px;
+    color: #FFFFFF;
+    user-select: none;
+}
+
+.modalBox h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    text-align: center;
+}
+
+.modalBox form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.modalBox input,
+.modalBox select {
+    border: 2px solid #FFFFFF33;
+    background-color: #2e2e2e;
+    color: #FFFFFF;
+    padding: 10px 12px;
+    border-radius: 10px;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.modalBox input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.modalBox input:focus,
+.modalBox select:focus {
+    border: 2px solid #FFFFFF;
+}
+
+.modalBox select {
+    cursor: pointer;
+}
+
+.modalBox label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: -8px;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.saveBtn,
+.cancelBtn {
+    border: 2px solid #FFFFFF33;
+    background-color: #222222;
+    color: #FFFFFF;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.saveBtn:hover,
+.cancelBtn:hover {
+    border: 1px solid #FFFFFF;
+    background-color: #181818;
+}
+
+/* Violation types checkbox grid */
+.violationTypesGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    background-color: #2e2e2e;
+    padding: 14px;
+    border-radius: 10px;
+    border: 2px solid #FFFFFF33;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #FFFFFF;
+    cursor: pointer;
+}
+
+.checkboxLabel input[type="checkbox"] {
+    accent-color: #4ade80;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
 }
 
 @media (max-width: 1200px) {
   .vehicleTable th,
   .vehicleTable td {
     padding: 12px 14px;
-    font-size: 16px;
+    font-size: 13px;
   }
 
   .searchBar {

@@ -1,142 +1,172 @@
 import { useState } from 'react';
 import Sidebar from "../components/Sidebar";
+import Pagination from "../components/Pagination";
 import './ViolationsPage.css';
 import { useData } from "../context/DataContext";
 
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
+const VIOLATION_TYPE_OPTIONS = [
+    'Speeding',
+    'Reckless Driving',
+    'Driving Under the Influence',
+    'No License',
+    'Expired Registration',
+    'Illegal Parking',
+    'Running Red Light',
+    'No Helmet',
+    'Overloading',
+    'Illegal Modification',
+    'No Insurance',
+    'Obstruction',
+    'Counterflow',
+    'Other'
+];
+
 export default function ViolationsPage() {
-    // States
     const { violations, setViolations, loading, error } = useData();
+    const [showModal, setShowModal] = useState(false);
+    const [modalMode, setModalMode] = useState("add");
+    const [selectedViolation, setSelectedViolation] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [showDriverViolationModal, setShowDriverViolationModal] = useState(false);
-    const [driverLicenseNumber, setDriverLicenseNumber] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [driverViolations, setDriverViolations] = useState([]);
-    const [driverViolationError, setDriverViolationError] = useState("");
-    const itemsPerPage = 5;
 
-    const totalPages = Math.ceil(violations.length / itemsPerPage);
+    const [formData, setFormData] = useState({
+        date: "",
+        location: "",
+        corresponding_fine_amount: "",
+        apprehending_officer: "",
+        violation_status: "Unpaid",
+        license_number: "",
+        plate_number: "",
+        violation_types: []
+    });
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentViolations = violations.slice(startIndex, startIndex + itemsPerPage);
-
-    const [showViolationTypeModal, setShowViolationTypeModal] = useState(false);
-    const [availableYears, setAvailableYears] = useState([]);
-    const [selectedYear, setSelectedYear] = useState("");
-    const [violationTypeCounts, setViolationTypeCounts] = useState([]);
-    const [violationTypeError, setViolationTypeError] = useState("");
-
-    // Searching violation by plate num
-    const handleSearchViolation = async (e) => {
-        const searchTerm = e.target.value;
-
-        try {
-            let url = "/api/violations";
-
-            if (searchTerm.trim() !== "") {
-                url = `/api/violations/search?plate_number=${encodeURIComponent(searchTerm)}`;
-            }
-
-            const response = await fetch(url, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to search violations");
-            }
-
-            const data = await response.json();
-
-            setViolations(data);
-            setCurrentPage(1);
-
-        } catch (err) {
-            console.error(err);
-        }
+    const resetForm = () => {
+        setFormData({
+            date: "",
+            location: "",
+            corresponding_fine_amount: "",
+            apprehending_officer: "",
+            violation_status: "Unpaid",
+            license_number: "",
+            plate_number: "",
+            violation_types: []
+        });
     };
 
-    // Searches driver traffic violations within a date range
-    const handleSearchDriverViolations = async (e) => {
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleTypeToggle = (type) => {
+        setFormData(prev => ({
+            ...prev,
+            violation_types: prev.violation_types.includes(type)
+                ? prev.violation_types.filter(t => t !== type)
+                : [...prev.violation_types, type]
+        }));
+    };
+
+    const handleCreate = async (e) => {
         e.preventDefault();
-
-        if (
-            driverLicenseNumber.trim() === "" ||
-            startDate.trim() === "" ||
-            endDate.trim() === ""
-        ) {
-            setDriverViolationError("Please enter license number, start date, and end date.");
-            return;
-        }
-
         const token = localStorage.getItem("token");
-
         try {
-            setDriverViolationError("");
-
-            const response = await fetch(
-                `/api/violations/driver-violations/date-range?license_number=${encodeURIComponent(driverLicenseNumber)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`,
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
+            const response = await fetch(`${API_BASE}/api/violations`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify(formData)
+            });
+            if (!response.ok) throw new Error("Failed to create violation");
             const data = await response.json();
-
-            console.log("Driver violation search result:", data);
-
-            if (!response.ok) {
-                throw new Error(data.message || "Failed to search driver violations");
-            }
-
-            setDriverViolations(data.violations || []);
-
+            setViolations(prev => [...prev, data]);
+            setShowModal(false);
+            resetForm();
         } catch (error) {
             console.error(error);
-            setDriverViolationError(
-                error instanceof Error
-                    ? error.message
-                    : "Failed to search driver violations"
-            );
         }
     };
 
-    const handleOpenViolationTypeModal = async () => {
-    setShowViolationTypeModal(true);
-    setViolationTypeCounts([]);
-    setViolationTypeError("");
-    try {
-        const response = await fetch("/api/violations/years", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        });
-        const data = await response.json();
-        setAvailableYears(data);
-        setSelectedYear(data[0] ?? "");
-    } catch (error) {
-        setViolationTypeError(error.message || "Failed to load years.");
-    }
-};
-
-    const handleSearchViolationTypes = async (e) => {
-      e.preventDefault();
-      if (!selectedYear) { setViolationTypeError("Please select a year."); return; }
-      try {
-        setViolationTypeError("");
-        const response = await fetch(
-            `/api/violations/count-by-type?year=${selectedYear}`,
-            { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        if (!response.ok) throw new Error("Failed to fetch violation counts");
-        const data = await response.json();
-        setViolationTypeCounts(data);
-      } catch (error) {
-        setViolationTypeError(error.message || "Failed to fetch violation counts.");
-      }
+    const handleUpdate = async (e) => {
+        e.preventDefault();
+        if (!selectedViolation) return;
+        const token = localStorage.getItem("token");
+        try {
+            const response = await fetch(`${API_BASE}/api/violations/${selectedViolation.violation_id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify(formData)
+            });
+            if (!response.ok) throw new Error("Failed to update violation");
+            const updated = await response.json();
+            setViolations(prev => prev.map(v => v.violation_id === selectedViolation.violation_id ? updated : v));
+            setShowModal(false);
+            setSelectedViolation(null);
+            setModalMode("add");
+            resetForm();
+        } catch (error) {
+            console.error(error);
+        }
     };
+
+    const handleDelete = async () => {
+        if (!selectedViolation) return;
+        const token = localStorage.getItem("token");
+        try {
+            const response = await fetch(`${API_BASE}/api/violations/${selectedViolation.violation_id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error("Failed to delete violation");
+            setViolations(prev => prev.filter(v => v.violation_id !== selectedViolation.violation_id));
+            setSelectedViolation(null);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const openEditModal = () => {
+        if (!selectedViolation) return;
+        setModalMode("update");
+        setFormData({
+            date: selectedViolation.date?.split("T")[0] || "",
+            location: selectedViolation.location || "",
+            corresponding_fine_amount: selectedViolation.corresponding_fine_amount || "",
+            apprehending_officer: selectedViolation.apprehending_officer || "",
+            violation_status: selectedViolation.violation_status || "Unpaid",
+            license_number: selectedViolation.license_number || "",
+            plate_number: selectedViolation.plate_number || "",
+            violation_types: selectedViolation.violation_types || []
+        });
+        setShowModal(true);
+    };
+
+    const filteredViolations = violations.filter(v =>
+        (v.plate_number || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (v.license_number || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (v.apprehending_officer || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (v.location || "").toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const formatDate = (dateStr) => {
+        if (!dateStr) return 'N/A';
+        try { return new Date(dateStr).toISOString().split("T")[0]; }
+        catch { return 'N/A'; }
+    };
+
+    const getStatusClass = (status) => {
+        switch(status) {
+            case 'Paid': return 'status-paid';
+            case 'Unpaid': return 'status-unpaid';
+            case 'Contested': return 'status-contested';
+            default: return '';
+        }
+    };
+
+    const itemsPerPage = 5;
+    const totalPages = Math.ceil(filteredViolations.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentViolations = filteredViolations.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <>
@@ -151,26 +181,20 @@ export default function ViolationsPage() {
                     <div className="searchRow">
                       <button className="violationTypeBtn" onClick={handleOpenViolationTypeModal}>Violations by Type</button>
                         <button className="sortBtn">Sort by</button>
-                        <button
-                            className="driverViolationSearchBtn"
-                            onClick={() => {
-                                setShowDriverViolationModal(true);
-                                setDriverLicenseNumber("");
-                                setStartDate("");
-                                setEndDate("");
-                                setDriverViolations([]);
-                                setDriverViolationError("");
-                            }}
-                        >
-                            Search Driver's Traffic Violations
-                        </button>
-
                         <input
                             type="text"
                             className="searchBar"
-                            placeholder="Search by plate number..."
-                            onChange={handleSearchViolation}
+                            placeholder="Search violations..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                         />
+                        <button className="addBtn" onClick={() => {
+                            setModalMode("add");
+                            resetForm();
+                            setShowModal(true);
+                        }}>Record Violation</button>
+                        <button className="updateBtn" onClick={openEditModal}>Edit Violation</button>
+                        <button className="deleteBtn" onClick={handleDelete}>Delete Violation</button>
                     </div>
                 </div>
 
@@ -178,39 +202,39 @@ export default function ViolationsPage() {
                     <p style={{ color: 'red' }}>Failed to load violations: {error}</p>
                 ) : loading ? (
                     <p>Loading violations...</p>
-                ) : violations.length === 0 ? (
-                    <p>No violations found.</p>
+                ) : filteredViolations.length === 0 ? (
+                    <p style={{ color: '#999' }}>No violations found.</p>
                 ) : (
                     <div className="vehicleTableContainer">
                         <div className="vehicleTable">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Violation ID</th>
+                                        <th>ID</th>
                                         <th>Types</th>
                                         <th>Status</th>
-                                        <th>Fine Amount</th>
+                                        <th>Fine (₱)</th>
                                         <th>Officer</th>
                                         <th>Date</th>
                                         <th>Location</th>
-                                        <th>License Number</th>
-                                        <th>Plate Number</th>
+                                        <th>License #</th>
+                                        <th>Plate #</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
                                     {currentViolations.map((violation) => (
-                                        <tr key={violation.violation_id}>
+                                        <tr
+                                            key={violation.violation_id}
+                                            onClick={() => setSelectedViolation(violation)}
+                                            className={selectedViolation?.violation_id === violation.violation_id ? "selectedRow" : ""}
+                                        >
                                             <td>{violation.violation_id}</td>
-                                            <td>
-                                                {violation?.violation_types?.length > 0
-                                                    ? violation.violation_types.join(', ')
-                                                    : 'N/A'}
-                                            </td>
-                                            <td>{violation.violation_status}</td>
-                                            <td>{violation.corresponding_fine_amount}</td>
-                                            <td>{violation.apprehending_officer}</td>
-                                            <td>{new Date(violation.date).toISOString().split("T")[0]}</td>
+                                            <td>{violation?.violation_types?.length > 0 ? violation.violation_types.join(', ') : 'N/A'}</td>
+                                            <td><span className={`statusBadge ${getStatusClass(violation.violation_status)}`}>{violation.violation_status}</span></td>
+                                            <td>₱{Number(violation.corresponding_fine_amount).toLocaleString()}</td>
+                                            <td>{violation.apprehending_officer || '—'}</td>
+                                            <td>{formatDate(violation.date)}</td>
                                             <td>{violation.location}</td>
                                             <td>{violation.license_number}</td>
                                             <td>{violation.plate_number}</td>
@@ -219,183 +243,66 @@ export default function ViolationsPage() {
                                 </tbody>
                             </table>
                         </div>
-
-                        <div className="pagination">
-                            <button
-                                onClick={() => setCurrentPage(prev => prev - 1)}
-                                disabled={currentPage === 1}
-                            >
-                                Previous
-                            </button>
-
-                            {Array.from({ length: totalPages }, (_, index) => (
-                                <button
-                                    key={index + 1}
-                                    onClick={() => setCurrentPage(index + 1)}
-                                    className={currentPage === index + 1 ? "activePage" : ""}
-                                >
-                                    {index + 1}
-                                </button>
-                            ))}
-
-                            <button
-                                onClick={() => setCurrentPage(prev => prev + 1)}
-                                disabled={currentPage === totalPages}
-                            >
-                                Next
-                            </button>
-                        </div>
+                        <Pagination 
+                            currentPage={currentPage} 
+                            totalPages={totalPages} 
+                            onPageChange={setCurrentPage} 
+                        />
                     </div>
                 )}
             </div>
 
-            {showDriverViolationModal && (
+            {/* Add / Edit Violation Modal */}
+            {showModal && (
                 <div className="modalOverlay">
-                    <div className="modalBox driverViolationModalBox">
-                        <h2>Search Driver's Traffic Violations</h2>
+                    <div className="modalBox">
+                        <h2>{modalMode === "add" ? "Record Violation" : "Edit Violation"}</h2>
+                        <form onSubmit={modalMode === "add" ? handleCreate : handleUpdate}>
+                            <label>Date</label>
+                            <input type="date" name="date" value={formData.date} onChange={handleChange} required />
 
-                        <form onSubmit={handleSearchDriverViolations}>
-                            <input
-                                type="text"
-                                placeholder="Enter license number..."
-                                value={driverLicenseNumber}
-                                onChange={(e) => setDriverLicenseNumber(e.target.value)}
-                            />
+                            <input type="text" name="location" placeholder="Location / City" value={formData.location} onChange={handleChange} required />
 
-                            <input
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                            />
+                            <input type="number" name="corresponding_fine_amount" placeholder="Fine Amount (₱)" value={formData.corresponding_fine_amount} onChange={handleChange} required step="0.01" min="0" />
 
-                            <input
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                            />
+                            <input type="text" name="apprehending_officer" placeholder="Apprehending Officer (optional)" value={formData.apprehending_officer} onChange={handleChange} />
+
+                            <select name="violation_status" value={formData.violation_status} onChange={handleChange} required>
+                                <option value="Unpaid">Unpaid</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Contested">Contested</option>
+                            </select>
+
+                            <input type="text" name="license_number" placeholder="Driver License Number" value={formData.license_number} onChange={handleChange} />
+
+                            <input type="text" name="plate_number" placeholder="Vehicle Plate Number" value={formData.plate_number} onChange={handleChange} />
+
+                            <label>Violation Types</label>
+                            <div className="violationTypesGrid">
+                                {VIOLATION_TYPE_OPTIONS.map(type => (
+                                    <label key={type} className="checkboxLabel">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.violation_types.includes(type)}
+                                            onChange={() => handleTypeToggle(type)}
+                                        />
+                                        <span>{type}</span>
+                                    </label>
+                                ))}
+                            </div>
 
                             <div className="modalActions">
-                                <button type="submit" className="saveBtn">
-                                    Search
-                                </button>
-
-                                <button
-                                    type="button"
-                                    className="cancelBtn"
-                                    onClick={() => {
-                                        setShowDriverViolationModal(false);
-                                        setDriverLicenseNumber("");
-                                        setStartDate("");
-                                        setEndDate("");
-                                        setDriverViolations([]);
-                                        setDriverViolationError("");
-                                    }}
-                                >
-                                    Cancel
-                                </button>
+                                <button type="submit" className="saveBtn">Save</button>
+                                <button type="button" className="cancelBtn" onClick={() => {
+                                    setShowModal(false);
+                                    setModalMode("add");
+                                    resetForm();
+                                }}>Cancel</button>
                             </div>
                         </form>
-
-                        {driverViolationError && (
-                            <p className="driverViolationError">{driverViolationError}</p>
-                        )}
-
-                        <div className="driverViolationResults">
-                            {driverViolations.length === 0 ? (
-                                <p className="noDriverViolationResult">
-                                    No violations found for this driver within the selected date range.
-                                </p>
-                            ) : (
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>License Number</th>
-                                            <th>Driver Name</th>
-                                            <th>Violation</th>
-                                            <th>Status</th>
-                                            <th>Fine</th>
-                                            <th>Officer</th>
-                                            <th>Date</th>
-                                            <th>Location</th>
-                                            <th>Plate Number</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        {driverViolations.map((violation, index) => (
-                                            <tr key={`${violation.license_number}-${violation.violation_id}-${index}`}>
-                                                <td>{violation.license_number}</td>
-                                                <td>{violation.full_name}</td>
-                                                <td>{violation.violation_type || "N/A"}</td>
-                                                <td>{violation.violation_status}</td>
-                                                <td>{violation.corresponding_fine_amount}</td>
-                                                <td>{violation.apprehending_officer}</td>
-                                                <td>{new Date(violation.date).toLocaleDateString()}</td>
-                                                <td>{violation.location}</td>
-                                                <td>{violation.plate_number}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            )}
-                        </div>
                     </div>
                 </div>
-        )}
-        {showViolationTypeModal && (
-    <div className="modalOverlay">
-        <div className="modalBox driverViolationModalBox">
-            <h2>Violations by Type</h2>
-            <form onSubmit={handleSearchViolationTypes}>
-                <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(e.target.value)}
-                >
-                    {availableYears.map(year => (
-                        <option key={year} value={year}>{year}</option>
-                    ))}
-                </select>
-                <div className="modalActions">
-                    <button type="submit" className="saveBtn">Search</button>
-                    <button
-                        type="button"
-                        className="cancelBtn"
-                        onClick={() => {
-                            setShowViolationTypeModal(false);
-                            setViolationTypeCounts([]);
-                            setViolationTypeError("");
-                        }}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </form>
-            {violationTypeError && <p className="driverViolationError">{violationTypeError}</p>}
-            <div className="driverViolationResults">
-                {violationTypeCounts.length === 0 ? (
-                    <p className="noDriverViolationResult">No data found for this year.</p>
-                ) : (
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Violation Type</th>
-                                <th>Count</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {violationTypeCounts.map((row, index) => (
-                                <tr key={index}>
-                                    <td>{row.violation_type}</td>
-                                    <td>{row.count}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </>
+            )}
+        </>
     );
 }

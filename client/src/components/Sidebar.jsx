@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Car, FileWarning, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, Users, Car, FileWarning, LogOut, Menu, ClipboardList, FileSpreadsheet } from 'lucide-react';
 import './Sidebar.css';
 
 export default function Sidebar() {
@@ -17,7 +17,9 @@ export default function Sidebar() {
         { path: '/dashboard', name: 'Dashboard', icon: LayoutDashboard },
         { path: '/drivers', name: 'Drivers', icon: Users },
         { path: '/vehicles', name: 'Vehicles', icon: Car },
+        { path: '/registrations', name: 'Registrations', icon: ClipboardList },
         { path: '/violations', name: 'Violations', icon: FileWarning },
+        { path: '/reports', name: 'Reports', icon: FileSpreadsheet },
     ];
 
     return (

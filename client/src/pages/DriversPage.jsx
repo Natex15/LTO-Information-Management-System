@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar";
 import './DriversPage.css';
 import AddDriverModal from "../components/AddDriverModal";
 import DriverSummaryModal from "../components/DriverSummaryModal";
+import Pagination from "../components/Pagination";
 import { useData } from "../context/DataContext";
 
 export default function DriversPage() {
@@ -12,23 +13,6 @@ export default function DriversPage() {
     const [selectedDriver, setSelectedDriver] = useState(null);
     const [modalMode, setModalMode] = useState("add");
     const [currentPage, setCurrentPage] = useState(1);
-    const [showExpiredSuspended, setShowExpiredSuspended] = useState(false);
-    const [filterOptions, setFilterOptions] = useState({ licenseTypes: [], licenseStatuses: [], sexes: [] });
-    const [activeFilterType, setActiveFilterType] = useState(null);
-    const [minAge, setMinAge] = useState("");
-    const [maxAge, setMaxAge] = useState("");
-    const [isFiltered, setIsFiltered] = useState(false);
-
-    const driversPerPage = 5;
-
-    const displayedDrivers = showExpiredSuspended ? drivers.filter(
-      d => d.license_status === "Expired" || d.license_status === "Suspended"
-    ) : drivers;
-
-    const totalPages = Math.ceil(displayedDrivers.length / driversPerPage);
-    const indexOfLastDriver = currentPage * driversPerPage;
-    const indexOfFirstDriver = indexOfLastDriver - driversPerPage;
-    const currentDrivers = displayedDrivers.slice(indexOfFirstDriver, indexOfLastDriver);
 
     const [formData, setFormData] = useState({
         license_number: "",
@@ -36,7 +20,7 @@ export default function DriversPage() {
         sex: "",
         address: "",
         date_of_birth: "",
-        track_license_number: "",
+        issuance_date: "",
         license_status: "",
         license_type: "",
         expiration_date: ""
@@ -79,7 +63,7 @@ export default function DriversPage() {
                 sex: "",
                 address: "",
                 date_of_birth: "",
-                track_license_number: "",
+                issuance_date: "",
                 license_status: "",
                 license_type: "",
                 expiration_date: ""
@@ -133,7 +117,7 @@ export default function DriversPage() {
             sex: selectedDriver.sex,
             address: selectedDriver.address,
             date_of_birth: selectedDriver.date_of_birth?.split("T")[0],
-            track_license_number: selectedDriver.track_license_number,
+            issuance_date: selectedDriver.issuance_date?.split("T")[0] || "",
             license_status: selectedDriver.license_status,
             license_type: selectedDriver.license_type,
             expiration_date: selectedDriver.expiration_date?.split("T")[0]
@@ -222,38 +206,10 @@ export default function DriversPage() {
     }
 };
 
-const handleFilter = async (type, value) => {
-    try {
-        let url = `/api/drivers/filter?filter_type=${type}`;
-        if (type === "age_range") {
-            url += `&min_age=${minAge}&max_age=${maxAge}`;
-        } else {
-            url += `&filter_value=${encodeURIComponent(value)}`;
-        }
-        const response = await fetch(url, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        });
-        const data = await response.json();
-        setDrivers(data);
-        setCurrentPage(1);
-        setIsFiltered(true);
-        setActiveFilterType(null);
-      } catch (err) { console.error(err); }
-    };
-
-    const handleClearFilter = async () => {
-      try {
-        const response = await fetch("/api/drivers", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        });
-        const data = await response.json();
-        setDrivers(data);
-        setIsFiltered(false);
-        setActiveFilterType(null);
-        setMinAge("");
-        setMaxAge("");
-      } catch (err) { console.error(err); }
-    };
+    const itemsPerPage = 5;
+    const totalPages = Math.ceil(drivers.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentDrivers = drivers.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <>
@@ -323,7 +279,7 @@ const handleFilter = async (type, value) => {
                                         <th>Sex</th>
                                         <th>Address</th>
                                         <th>Date of Birth</th>
-                                        <th>Track License Number</th>
+                                        <th>Issuance Date</th>
                                         <th>License Status</th>
                                         <th>License Type</th>
                                         <th>Expiration Date</th>
@@ -342,7 +298,7 @@ const handleFilter = async (type, value) => {
                                             <td>{driver.sex}</td>
                                             <td>{driver.address}</td>
                                             <td>{new Date(driver.date_of_birth).toISOString().split("T")[0]}</td>
-                                            <td>{driver.track_license_number}</td>
+                                            <td>{driver.issuance_date ? new Date(driver.issuance_date).toISOString().split("T")[0] : 'N/A'}</td>
                                             <td>{driver.license_status}</td>
                                             <td>{driver.license_type}</td>
                                             <td>{new Date(driver.expiration_date).toISOString().split("T")[0]}</td>
@@ -377,6 +333,11 @@ const handleFilter = async (type, value) => {
                                 </button>
                             </div>
                         </div>
+                        <Pagination 
+                            currentPage={currentPage} 
+                            totalPages={totalPages} 
+                            onPageChange={setCurrentPage} 
+                        />
                     </div>
                 )}
             </div>

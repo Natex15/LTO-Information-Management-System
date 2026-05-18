@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Sidebar from "../components/Sidebar";
 import './VehiclesPage.css';
 import AddVehicleModal from "../components/AddVehicleModal";
+import Pagination from "../components/Pagination";
 import { useData } from "../context/DataContext";
 
 export default function VehiclesPage() {
@@ -10,18 +11,7 @@ export default function VehiclesPage() {
     const [showModal, setShowModal] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [modalMode, setModalMode] = useState("add");
-    const [showExpired, setShowExpired] = useState(false);
-    const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
-    const [expiredVehicles, setExpiredVehicles] = useState([]);
-    const [searchLicense, setSearchLicense] = useState("");
-    const [filteredVehicles, setFilteredVehicles] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [showViolationModal, setShowViolationModal] = useState(false);
-    const [violationLocation, setViolationLocation] = useState("");
-    const [violationVehicles, setViolationVehicles] = useState([]);
-    const [violationSearchError, setViolationSearchError] = useState("");
-
-    const vehiclesPerPage = 5;
 
     const [formData, setFormData] = useState({
         plate_number: "",
@@ -182,130 +172,10 @@ export default function VehiclesPage() {
         }
     };
 
-  const handleViewExpiredRegistrations = async () => {
-    if (showExpired) {
-      setShowExpired(false);
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-
-    try {
-      const response = await fetch(
-        `/api/vehicles/expired-registrations?date=${filterDate}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch expired registrations");
-
-      const data = await response.json();
-      setExpiredVehicles(data);
-      setShowExpired(true);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleSearchByDriver = async (e) => {
-    const value = e.target.value;
-    setSearchLicense(value);
-    setShowExpired(false);
-
-    if (value.trim() === "") {
-        setFilteredVehicles(null);
-        return;
-    }
-
-    const token = localStorage.getItem("token");
-
-    try {
-        const response = await fetch(
-            `/api/vehicles/by-driver?driverName=${encodeURIComponent(value)}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        if (!response.ok) { setFilteredVehicles([]); return; }
-
-        const data = await response.json();
-        setFilteredVehicles(Array.isArray(data) ? data : []);
-    } catch (error) {
-        console.error(error);
-        setFilteredVehicles([]);
-    }
-  };
-
-  const displayedVehicles = filteredVehicles !== null ? filteredVehicles : showExpired ? expiredVehicles : vehicles;
-  const totalPages = Math.ceil(displayedVehicles.length / vehiclesPerPage);
-  const indexOfLastVehicle = currentPage * vehiclesPerPage;
-  const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage;
-  const pagedVehicles = displayedVehicles.slice(indexOfFirstVehicle, indexOfLastVehicle);
-    // Search vehicle via plate num
-    const handleSearchVehicle = async (e) => {
-        const searchTerm = e.target.value;
-
-        try {
-            let url = "/api/vehicles";
-
-            if (searchTerm.trim() !== "") {
-                url = `/api/vehicles/search?plate_number=${encodeURIComponent(searchTerm)}`;
-            }
-
-            const response = await fetch(url, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to search vehicles");
-            }
-
-            const data = await response.json();
-
-            setVehicles(data);
-            setCurrentPage(1);
-
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    // Searches vehicles violations within a city/region
-    const handleSearchVehiclesWithViolations = async (e) => {
-        e.preventDefault();
-
-        if (violationLocation.trim() === "") {
-            setViolationSearchError("Please enter a location.");
-            return;
-        }
-
-        const token = localStorage.getItem("token");
-
-        try {
-            setViolationSearchError("");
-
-            const response = await fetch(
-                `/api/vehicles/vehicles-violations/location?location=${encodeURIComponent(violationLocation)}`,
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error("Failed to search vehicles with violations");
-            }
-
-            const data = await response.json();
-
-            setViolationVehicles(data.vehicles || data);
-        } catch (error) {
-            console.error(error);
-            setViolationSearchError("Failed to search vehicles with violations.");
-        }
-    };
+    const itemsPerPage = 5;
+    const totalPages = Math.ceil(vehicles.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const currentVehicles = vehicles.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <>
@@ -373,7 +243,7 @@ export default function VehiclesPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {pagedVehicles.map(vehicle => (
+                                    {currentVehicles.map(vehicle => (
                                         <tr
                                             key={vehicle.plate_number}
                                             onClick={() => setSelectedVehicle(vehicle)}
@@ -392,31 +262,11 @@ export default function VehiclesPage() {
                                 </tbody>
                             </table>
                         </div>
-                            <div className="pagination">
-                                <button
-                                    onClick={() => setCurrentPage(prev => prev - 1)}
-                                    disabled={currentPage === 1}
-                                >
-                                    Previous
-                                </button>
-
-                                {Array.from({ length: totalPages }, (_, index) => (
-                                    <button
-                                        key={index + 1}
-                                        onClick={() => setCurrentPage(index + 1)}
-                                        className={currentPage === index + 1 ? "activePage" : ""}
-                                    >
-                                        {index + 1}
-                                    </button>
-                                ))}
-
-                                <button
-                                    onClick={() => setCurrentPage(prev => prev + 1)}
-                                    disabled={currentPage === totalPages}
-                                >
-                                    Next
-                                </button>
-                            </div>
+                        <Pagination 
+                            currentPage={currentPage} 
+                            totalPages={totalPages} 
+                            onPageChange={setCurrentPage} 
+                        />
                     </div>
                 )}
             </div>
