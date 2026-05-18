@@ -3,12 +3,12 @@ import pool from '../db/pool.js';
 export const getAllViolations = async (req, res) => {
   try {
     const query = `
-      SELECT 
+      SELECT
         v.*,
         COALESCE(
-          (SELECT array_agg(vt.violation_type) 
-           FROM violation_type vt 
-           WHERE vt.violation_id = v.violation_id), 
+          (SELECT array_agg(vt.violation_type)
+           FROM violation_type vt
+           WHERE vt.violation_id = v.violation_id),
           '{}'
         ) as violation_types
       FROM violation v
@@ -25,12 +25,12 @@ export const getViolationsByLicense = async (req, res) => {
   try {
     const { license_number } = req.params;
     const query = `
-      SELECT 
+      SELECT
         v.*,
         COALESCE(
-          (SELECT array_agg(vt.violation_type) 
-           FROM violation_type vt 
-           WHERE vt.violation_id = v.violation_id), 
+          (SELECT array_agg(vt.violation_type)
+           FROM violation_type vt
+           WHERE vt.violation_id = v.violation_id),
           '{}'
         ) as violation_types
       FROM violation v
@@ -58,7 +58,7 @@ export const getDashboardStats = async (req, res) => {
     `;
 
     const violationsOverTimeQuery = `
-      SELECT 
+      SELECT
         TO_CHAR(v.date, 'Mon') AS month,
         CAST(COUNT(*) AS INTEGER) AS total
       FROM violation v
@@ -112,7 +112,7 @@ export async function searchViolation(req, res) {
     const values = [`%${plate_number}%`];
 
     const result = await pool.query(query, values);
-    
+
      res.json(result.rows);
 
   } catch (error) {
@@ -134,7 +134,7 @@ export async function findDriverViolationsByDateRange(req, res) {
     }
 
     const query = `
-      SELECT 
+      SELECT
         d.license_number,
         d.full_name,
         d.license_status,
@@ -179,5 +179,30 @@ export async function findDriverViolationsByDateRange(req, res) {
       success: false,
       message: error.message,
     });
+  }
+}
+
+export async function getViolationYears(req, res) {
+  try {
+    const result = await pool.query(
+      `SELECT DISTINCT EXTRACT(YEAR FROM date):: int AS year FROM violation ORDER BY year DESC`
+    );
+    res.json(result.rows.map(r => r.year));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+export async function getViolationCountByType(req, res) {
+  try {
+    const { year } = req.query;
+    if (!year) return res.status(400).json({ error: "Year is required" });
+
+    const result = await pool.query(
+      `SELECT vt.violation_type, COUNT(*) AS count FROM violation v JOIN violation_type vt ON vt.violation_id = v.violation_id WHERE EXTRACT(YEAR FROM v.date) = $1 GROUP BY vt.violation_type ORDER BY count DESC`, [year]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 }
