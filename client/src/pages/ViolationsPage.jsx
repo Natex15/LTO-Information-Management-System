@@ -171,12 +171,15 @@ export default function ViolationsPage() {
     return (
         <>
             <Sidebar />
+
             <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
                 <div className="headerRow">
                     <h2 style={{ marginBottom: "10px", userSelect: "none", fontSize: "30px", marginLeft: "11px", color: "#FFFFFF" }}>
                         Violations
                     </h2>
+
                     <div className="searchRow">
+                      <button className="violationTypeBtn" onClick={handleOpenViolationTypeModal}>Violations by Type</button>
                         <button className="sortBtn">Sort by</button>
                         <input
                             type="text"
@@ -218,6 +221,7 @@ export default function ViolationsPage() {
                                         <th>Plate #</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     {currentViolations.map((violation) => (
                                         <tr

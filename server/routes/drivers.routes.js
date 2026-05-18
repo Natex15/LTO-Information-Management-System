@@ -1,10 +1,13 @@
 import express from 'express';
-import { getAllDrivers, createDriver, updateDriver, deleteDriver } from '../controllers/drivers.controllers.js';
+import { getAllDrivers, createDriver, updateDriver, deleteDriver, searchDriver, getDriverFilterOptions, filterDrivers } from '../controllers/drivers.controllers.js';
 import authMiddleware from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
 router.get('/', authMiddleware, getAllDrivers);
+router.get('/search', authMiddleware, searchDriver);
+router.get('/filter-options', getDriverFilterOptions);
+router.get('/filter', filterDrivers);
 router.delete('/:license_number', authMiddleware, deleteDriver);
 router.patch('/:license_number', authMiddleware, updateDriver);
 router.post('/', authMiddleware, createDriver);
