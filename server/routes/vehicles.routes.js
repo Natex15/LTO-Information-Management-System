@@ -1,9 +1,11 @@
 import express from 'express';
-import { getAllVehicles, getVehiclesByLicense, addVehicle, updateVehicle, deleteVehicle, getExpiredRegistrations, getVehiclesByDriver } from '../controllers/vehicles.controllers.js';
+import { getAllVehicles, getVehiclesByLicense, addVehicle, updateVehicle, deleteVehicle, getExpiredRegistrations, getVehiclesByDriver, searchVehicle, findVehicleViolation } from '../controllers/vehicles.controllers.js';
 import authMiddleware from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
+router.get('/search', authMiddleware, searchVehicle);
+router.get("/vehicles-violations/location", findVehicleViolation);
 router.get('/', authMiddleware, getAllVehicles);
 router.get('/expired-registrations', authMiddleware, getExpiredRegistrations);
 router.get('/by-driver', authMiddleware, getVehiclesByDriver);

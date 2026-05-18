@@ -101,3 +101,83 @@ export const getDashboardStats = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export async function searchViolation(req, res) {
+
+  try {
+    const { plate_number } = req.query;
+
+    const query = `SELECT * FROM violation WHERE plate_number ILIKE $1`;
+
+    const values = [`%${plate_number}%`];
+
+    const result = await pool.query(query, values);
+    
+     res.json(result.rows);
+
+  } catch (error) {
+
+    res.status(500).json({success: false, error: error.message});
+
+  }
+}
+
+export async function findDriverViolationsByDateRange(req, res) {
+  try {
+    const { license_number, start_date, end_date } = req.query;
+
+    if (!license_number || !start_date || !end_date) {
+      return res.status(400).json({
+        success: false,
+        message: "License number, start date, and end date are required",
+      });
+    }
+
+    const query = `
+      SELECT 
+        d.license_number,
+        d.full_name,
+        d.license_status,
+        d.license_type,
+        v.violation_id,
+        t.violation_type,
+        v.violation_status,
+        v.corresponding_fine_amount,
+        v.apprehending_officer,
+        v.date,
+        v.location,
+        v.plate_number
+      FROM driver d
+      JOIN violation v
+        ON d.license_number = v.license_number
+      JOIN violation_type t
+        ON t.violation_id = v.violation_id
+      WHERE d.license_number ILIKE $1
+        AND v.date BETWEEN $2 AND $3
+        AND t.violation_type ILIKE $4
+      ORDER BY v.date DESC
+    `;
+
+    const values = [
+      `%${license_number}%`,
+      start_date,
+      end_date,
+      "Disregarding Traffic Signs",
+    ];
+
+    const result = await pool.query(query, values);
+
+    return res.status(200).json({
+      success: true,
+      violations: result.rows,
+    });
+
+  } catch (error) {
+    console.error("Find driver violations error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}

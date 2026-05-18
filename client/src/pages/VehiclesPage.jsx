@@ -5,6 +5,7 @@ import AddVehicleModal from "../components/AddVehicleModal";
 import { useData } from "../context/DataContext";
 
 export default function VehiclesPage() {
+    // States
     const { vehicles, setVehicles, loading, error } = useData();
     const [showModal, setShowModal] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
@@ -14,6 +15,13 @@ export default function VehiclesPage() {
     const [expiredVehicles, setExpiredVehicles] = useState([]);
     const [searchLicense, setSearchLicense] = useState("");
     const [filteredVehicles, setFilteredVehicles] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [showViolationModal, setShowViolationModal] = useState(false);
+    const [violationLocation, setViolationLocation] = useState("");
+    const [violationVehicles, setViolationVehicles] = useState([]);
+    const [violationSearchError, setViolationSearchError] = useState("");
+
+    const vehiclesPerPage = 5;
 
     const [formData, setFormData] = useState({
         plate_number: "",
@@ -33,6 +41,7 @@ export default function VehiclesPage() {
         });
     };
 
+    // Create vehicle
     const handleCreateVehicle = async (e) => {
         e.preventDefault();
 
@@ -77,6 +86,7 @@ export default function VehiclesPage() {
         }
     };
 
+    // Delete vehicle
     const handleDeleteVehicle = async () => {
         if (!selectedVehicle) {
             return;
@@ -110,6 +120,7 @@ export default function VehiclesPage() {
         }
     };
 
+    // Prepares modal for updating
     const handleUpdateVehicle = async () => {
         if (!selectedVehicle) {
             return;
@@ -131,6 +142,7 @@ export default function VehiclesPage() {
         setShowModal(true);
     };
 
+    // Handles the update
     const handlePatchVehicle = async (e) => {
         e.preventDefault();
 
@@ -223,6 +235,77 @@ export default function VehiclesPage() {
   };
 
   const displayedVehicles = filteredVehicles !== null ? filteredVehicles : showExpired ? expiredVehicles : vehicles;
+  const totalPages = Math.ceil(displayedVehicles.length / vehiclesPerPage);
+  const indexOfLastVehicle = currentPage * vehiclesPerPage;
+  const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage;
+  const pagedVehicles = displayedVehicles.slice(indexOfFirstVehicle, indexOfLastVehicle);
+    // Search vehicle via plate num
+    const handleSearchVehicle = async (e) => {
+        const searchTerm = e.target.value;
+
+        try {
+            let url = "/api/vehicles";
+
+            if (searchTerm.trim() !== "") {
+                url = `/api/vehicles/search?plate_number=${encodeURIComponent(searchTerm)}`;
+            }
+
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to search vehicles");
+            }
+
+            const data = await response.json();
+
+            setVehicles(data);
+            setCurrentPage(1);
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // Searches vehicles violations within a city/region
+    const handleSearchVehiclesWithViolations = async (e) => {
+        e.preventDefault();
+
+        if (violationLocation.trim() === "") {
+            setViolationSearchError("Please enter a location.");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+
+        try {
+            setViolationSearchError("");
+
+            const response = await fetch(
+                `/api/vehicles/vehicles-violations/location?location=${encodeURIComponent(violationLocation)}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Failed to search vehicles with violations");
+            }
+
+            const data = await response.json();
+
+            setViolationVehicles(data.vehicles || data);
+        } catch (error) {
+            console.error(error);
+            setViolationSearchError("Failed to search vehicles with violations.");
+        }
+    };
 
     return (
         <>
@@ -251,7 +334,7 @@ export default function VehiclesPage() {
                         {showExpired ? "Show All" : "Expired Registrations"}
                       </button>
                       <button className="sortBtn">Sort by</button>
-                      <input type="text" className="searchBar" placeholder="Search by plate number..." />
+              <input type="text" className="searchBar" placeholder="Search by plate number..." onChange={handleSearchVehicle} />
                       <button className="addBtn" onClick={() => { setModalMode("add"); setShowModal(true); }}>
                         Add Vehicle
                       </button>
@@ -282,7 +365,7 @@ export default function VehiclesPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {displayedVehicles.map(vehicle => (
+                                    {pagedVehicles.map(vehicle => (
                                         <tr
                                             key={vehicle.plate_number}
                                             onClick={() => setSelectedVehicle(vehicle)}
@@ -301,10 +384,107 @@ export default function VehiclesPage() {
                                 </tbody>
                             </table>
                         </div>
+                            <div className="pagination">
+                                <button
+                                    onClick={() => setCurrentPage(prev => prev - 1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    Previous
+                                </button>
+
+                                {Array.from({ length: totalPages }, (_, index) => (
+                                    <button
+                                        key={index + 1}
+                                        onClick={() => setCurrentPage(index + 1)}
+                                        className={currentPage === index + 1 ? "activePage" : ""}
+                                    >
+                                        {index + 1}
+                                    </button>
+                                ))}
+
+                                <button
+                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                </button>
+                            </div>
                     </div>
                 )}
             </div>
+            {showViolationModal && (
+                <div className="modalOverlay">
+                    <div className="modalBox violationModalBox">
+                        <h2>Search Vehicles with Violations</h2>
 
+                        <form onSubmit={handleSearchVehiclesWithViolations}>
+                            <input
+                                type="text"
+                                placeholder="Enter city or region..."
+                                value={violationLocation}
+                                onChange={(e) => setViolationLocation(e.target.value)}
+                            />
+
+                            <div className="modalActions">
+                                <button type="submit" className="saveBtn">
+                                    Search
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="cancelBtn"
+                                    onClick={() => {
+                                        setShowViolationModal(false);
+                                        setViolationLocation("");
+                                        setViolationVehicles([]);
+                                        setViolationSearchError("");
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+
+                        {violationSearchError && (
+                            <p className="violationError">{violationSearchError}</p>
+                        )}
+
+                        <div className="violationResults">
+                            {violationVehicles.length === 0 ? (
+                                <p className="noViolationResult">
+                                    No vehicles with violations found.
+                                </p>
+                            ) : (
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Plate Number</th>
+                                            <th>Model</th>
+                                            <th>Color</th>
+                                            <th>Vehicle Type</th>
+                                            <th>Violations Committed</th>
+                                            <th>Location</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {violationVehicles.map((vehicle, index) => (
+                                            <tr key={`${vehicle.plate_number}-${index}`}>
+                                                <td>{vehicle.plate_number}</td>
+                                                <td>{vehicle.model}</td>
+                                                <td>{vehicle.color}</td>
+                                                <td>{vehicle.vehicle_type}</td>
+                                                <td>{vehicle.violation_types || "N/A"}</td>
+                                                <td>{vehicle.location}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
             <AddVehicleModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateVehicle={modalMode === "add" ? handleCreateVehicle : handlePatchVehicle} />
         </>
     );
