@@ -77,7 +77,10 @@ export default function ViolationsPage() {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify(formData)
             });
-            if (!response.ok) throw new Error("Failed to create violation");
+            if (!response.ok) {
+                alert(error || new Error("Failed to create violation"));
+                return;
+            }
             const data = await response.json();
             setViolations(prev => [...prev, data]);
             setShowModal(false);
@@ -97,7 +100,10 @@ export default function ViolationsPage() {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify(formData)
             });
-            if (!response.ok) throw alert(new Error("Failed to update violation"));
+            if (!response.ok) {
+                alert(error || new Error("Failed to update violation"));
+                return;
+            }
             const updated = await response.json();
             setViolations(prev => prev.map(v => v.violation_id === selectedViolation.violation_id ? updated : v));
             setShowModal(false);

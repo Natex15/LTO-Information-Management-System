@@ -56,7 +56,8 @@ export default function DriversPage() {
             );
 
             if (!response.ok) {
-                throw alert(new Error("Failed to create driver"));
+                alert(error || new Error("Failed to create driver"));
+                return;
             }
 
             const data = await response.json();
@@ -164,9 +165,10 @@ export default function DriversPage() {
             body: JSON.stringify(formData)
         });
 
-        if (!response.ok) {
-            throw alert(new Error("Failed to update driver"));
-        }
+            if (!response.ok) {
+                alert(error || new Error("Failed to create driver"));
+                return;
+            }
 
         const updatedDriver = await response.json();
 

@@ -50,7 +50,8 @@ export default function VehiclesPage() {
             );
 
             if (!response.ok) {
-                throw alert(new Error("Failed to create driver"));
+                alert(error || new Error("Failed to create vehicle"));
+                return;
             }
 
             const data = await response.json();
@@ -151,7 +152,7 @@ export default function VehiclesPage() {
             });
 
             if (!response.ok) {
-                throw alert(new Error("Failed to create driver"));
+                alert(error || new Error("Failed to update vehicle"));
                 return;
             }
 

@@ -56,6 +56,69 @@ export async function addVehicle(req, res) {
       [plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number]
     );
 
+    if (license_number.length !== 13) {
+      return res.status(400).json({
+        success: false,
+        error: "License number must be exactly 13 characters long."
+      });
+    }
+
+    const plateLength = plate_number.length;
+
+    if (plateLength !== 4 && plateLength !== 5 && plateLength !== 7) {
+      return res.status(400).json({
+        error: "Plate number must be 3 letters followed by 1, 2, or 4 numbers."
+      });
+    }
+
+    const firstThree = plate_number.slice(0, 3);
+    const remaining = plate_number.slice(3);
+
+    // Check first 3 characters are letters
+    for (let i = 0; i < firstThree.length; i++) {
+      const char = firstThree[i];
+
+      if (char < "A" || char > "Z") {
+        return res.status(400).json({
+          error: "Plate number must start with exactly 3 letters."
+        });
+      }
+    }
+
+    // Check remaining characters are numbers
+    for (let i = 0; i < remaining.length; i++) {
+      const char = remaining[i];
+
+      if (char < "0" || char > "9") {
+        return res.status(400).json({
+          error: "Plate number must end with numbers only."
+        });
+      }
+    }
+
+    // Only allow 1, 2, or 4 numbers after the letters
+    if (
+      remaining.length !== 1 &&
+      remaining.length !== 2 &&
+      remaining.length !== 4
+    ) {
+      return res.status(400).json({
+        error: "Plate number must be 3 letters followed by 1, 2, or 4 numbers."
+      });
+    }
+
+    if (!engine_number || engine_number.length !== 12) {
+      return res.status(400).json({
+        error: "Engine number must be exactly 12 characters long."
+      });
+    }
+
+    if (!chassis_number || chassis_number.length !== 12) {
+      return res.status(400).json({
+        error: "Chassis number must be exactly 12 characters long."
+      });
+    }
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Add Vehicle Error:", error.message);
@@ -82,6 +145,69 @@ export async function updateVehicle(req, res) {
     const values = [plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number, old_plate_number];
 
     const result = await pool.query(query, values);
+
+    if (license_number.length !== 13) {
+      return res.status(400).json({
+        success: false,
+        error: "License number must be exactly 13 characters long."
+      });
+    }
+
+    const plateLength = plate_number.length;
+
+    if (plateLength !== 4 && plateLength !== 5 && plateLength !== 7) {
+      return res.status(400).json({
+        error: "Plate number must be 3 letters followed by 1, 2, or 4 numbers."
+      });
+    }
+
+    const firstThree = plate_number.slice(0, 3);
+    const remaining = plate_number.slice(3);
+
+    // Check first 3 characters are letters
+    for (let i = 0; i < firstThree.length; i++) {
+      const char = firstThree[i];
+
+      if (char < "A" || char > "Z") {
+        return res.status(400).json({
+          error: "Plate number must start with exactly 3 letters."
+        });
+      }
+    }
+
+    // Check remaining characters are numbers
+    for (let i = 0; i < remaining.length; i++) {
+      const char = remaining[i];
+
+      if (char < "0" || char > "9") {
+        return res.status(400).json({
+          error: "Plate number must end with numbers only."
+        });
+      }
+    }
+
+    // Only allow 1, 2, or 4 numbers after the letters
+    if (
+      remaining.length !== 1 &&
+      remaining.length !== 2 &&
+      remaining.length !== 4
+    ) {
+      return res.status(400).json({
+        error: "Plate number must be 3 letters followed by 1, 2, or 4 numbers."
+      });
+    }
+
+    if (engine_number.length !== 12) {
+      return res.status(400).json({
+        error: "Engine number must be exactly 12 characters long."
+      });
+    }
+
+    if (chassis_number.length !== 12) {
+      return res.status(400).json({
+        error: "Chassis number must be exactly 12 characters long."
+      });
+    }
 
     res.json(result.rows[0]);
 
