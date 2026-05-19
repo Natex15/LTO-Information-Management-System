@@ -46,7 +46,10 @@ export default function VehicleRegistrationsPage() {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify(formData)
             });
-            if (!response.ok) throw new Error("Failed to create registration");
+            if (!response.ok) {
+                alert(error || new Error("Failed to create registration"));
+                return;
+            }
             const data = await response.json();
             setRegistrations(prev => [...prev, data]);
             setShowModal(false);
@@ -66,7 +69,10 @@ export default function VehicleRegistrationsPage() {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify(formData)
             });
-            if (!response.ok) throw new Error("Failed to update registration");
+            if (!response.ok) {
+                alert(error || new Error("Failed to update registration"));
+                return;
+            }
             const updated = await response.json();
             setRegistrations(prev => prev.map(r =>
                 r.registration_number === selectedRegistration.registration_number ? updated : r

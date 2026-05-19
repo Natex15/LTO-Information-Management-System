@@ -71,6 +71,31 @@ export const createRegistration = async (req, res) => {
       [registration_number, plate_number, registration_date, expiration_date, registration_status || 'Active']
     );
 
+    if (registration_number.length !== 13) {
+      return res.status(400).json({
+        success: false,
+        error: "Registration number must be exactly 13 characters long."
+      });
+    }
+
+    const regDate = new Date(registration_date);
+    const expDate = new Date(expiration_date);
+
+    if (isNaN(regDate.getTime()) || isNaN(expDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid date format."
+      });
+    }
+
+    // Prevent registration date from being later than expiration date
+    if (regDate > expDate) {
+      return res.status(400).json({
+        success: false,
+        error: "Registration date cannot be later than expiration date."
+      });
+    }
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Create Registration Error:", error.message);
@@ -93,6 +118,31 @@ export const updateRegistration = async (req, res) => {
 
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "Registration not found" });
+    }
+
+    if (registration_number.length !== 13) {
+      return res.status(400).json({
+        success: false,
+        error: "Registration number must be exactly 13 characters long."
+      });
+    }
+
+    const regDate = new Date(registration_date);
+    const expDate = new Date(expiration_date);
+
+    if (isNaN(regDate.getTime()) || isNaN(expDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid date format."
+      });
+    }
+
+    // Prevent registration date from being later than expiration date
+    if (regDate > expDate) {
+      return res.status(400).json({
+        success: false,
+        error: "Registration date cannot be later than expiration date."
+      });
     }
 
     res.json(result.rows[0]);

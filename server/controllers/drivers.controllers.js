@@ -92,6 +92,34 @@ export async function createDriver(req, res) {
       [license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date || null]
     );
 
+    if (license_number.length !== 13) {
+      return res.status(400).json({
+        success: false,
+        error: "License number must be exactly 13 characters long."
+      });
+    }
+
+    const birthDate = new Date(date_of_birth);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const hasBirthdayPassedThisYear =
+      today.getMonth() > birthDate.getMonth() ||
+      (today.getMonth() === birthDate.getMonth() &&
+        today.getDate() >= birthDate.getDate());
+
+    if (!hasBirthdayPassedThisYear) {
+      age--;
+    }
+
+    if (age < 17) {
+      return res.status(400).json({
+        success: false,
+        error: "Driver must be at least 17 years old."
+      });
+    }
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Add Driver Error:", error.message);
@@ -112,6 +140,34 @@ export async function updateDriver(req, res) {
     const values = [full_name, sex, address, date_of_birth, issuance_date || null, license_status, license_type, expiration_date, license_number];
 
     const result = await pool.query(query, values);
+
+    if (license_number.length !== 13) {
+      return res.status(400).json({
+        success: false,
+        error: "License number must be exactly 13 characters long."
+      });
+    }
+
+    const birthDate = new Date(date_of_birth);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const hasBirthdayPassedThisYear =
+      today.getMonth() > birthDate.getMonth() ||
+      (today.getMonth() === birthDate.getMonth() &&
+        today.getDate() >= birthDate.getDate());
+
+    if (!hasBirthdayPassedThisYear) {
+      age--;
+    }
+
+    if (age < 17) {
+      return res.status(400).json({
+        success: false,
+        error: "Driver must be at least 17 years old."
+      });
+    }
 
     res.json(result.rows[0]);
 
