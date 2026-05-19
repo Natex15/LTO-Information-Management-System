@@ -108,6 +108,10 @@ export default function AddDriverModal({
                         <option value="Suspended">
                             Suspended
                         </option>
+
+                        <option value="Revoked">
+                            Revoked
+                        </option>
                     </select>
 
                     <select

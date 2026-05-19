@@ -65,13 +65,7 @@ export const createRegistration = async (req, res) => {
   try {
     const { registration_number, plate_number, registration_date, expiration_date, registration_status } = req.body;
 
-    const result = await pool.query(
-      `INSERT INTO vehicle_registration (registration_number, plate_number, registration_date, expiration_date, registration_status)
-      VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [registration_number, plate_number, registration_date, expiration_date, registration_status || 'Active']
-    );
-
-    if (registration_number.length !== 13) {
+    if (!registration_number || registration_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "Registration number must be exactly 13 characters long."
@@ -95,6 +89,12 @@ export const createRegistration = async (req, res) => {
         error: "Registration date cannot be later than expiration date."
       });
     }
+
+    const result = await pool.query(
+      `INSERT INTO vehicle_registration (registration_number, plate_number, registration_date, expiration_date, registration_status)
+      VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [registration_number, plate_number, registration_date, expiration_date, registration_status || 'Active']
+    );
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -109,18 +109,7 @@ export const updateRegistration = async (req, res) => {
     const { registration_number } = req.params;
     const { plate_number, registration_date, expiration_date, registration_status } = req.body;
 
-    const query = `UPDATE vehicle_registration SET plate_number = $1, registration_date = $2, expiration_date = $3, registration_status = $4
-      WHERE registration_number = $5 RETURNING *`;
-
-    const values = [plate_number, registration_date, expiration_date, registration_status, registration_number];
-
-    const result = await pool.query(query, values);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Registration not found" });
-    }
-
-    if (registration_number.length !== 13) {
+    if (!registration_number || registration_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "Registration number must be exactly 13 characters long."
@@ -143,6 +132,17 @@ export const updateRegistration = async (req, res) => {
         success: false,
         error: "Registration date cannot be later than expiration date."
       });
+    }
+
+    const query = `UPDATE vehicle_registration SET plate_number = $1, registration_date = $2, expiration_date = $3, registration_status = $4
+      WHERE registration_number = $5 RETURNING *`;
+
+    const values = [plate_number, registration_date, expiration_date, registration_status, registration_number];
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Registration not found" });
     }
 
     res.json(result.rows[0]);

@@ -91,16 +91,16 @@ export const createViolation = async (req, res) => {
   try {
     const { date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number, violation_types } = req.body;
 
-    const result = await pool.query(
-      `INSERT INTO violation (date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number)
-      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [date, location, corresponding_fine_amount, apprehending_officer, violation_status || 'Unpaid', license_number, plate_number]
-    );
-
-    if (license_number.length !== 13) {
+    if (!license_number || license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
+      });
+    }
+
+    if (!plate_number) {
+      return res.status(400).json({
+        error: "Plate number is required."
       });
     }
 
@@ -147,6 +147,12 @@ export const createViolation = async (req, res) => {
         error: "Plate number must be 3 letters followed by 1, 2, or 4 numbers."
       });
     }
+
+    const result = await pool.query(
+      `INSERT INTO violation (date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number)
+      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [date, location, corresponding_fine_amount, apprehending_officer, violation_status || 'Unpaid', license_number, plate_number]
+    );
 
     const newViolation = result.rows[0];
 
@@ -181,21 +187,16 @@ export const updateViolation = async (req, res) => {
     const { violation_id } = req.params;
     const { date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number, violation_types } = req.body;
 
-    const query = `UPDATE violation SET date = $1, location = $2, corresponding_fine_amount = $3, apprehending_officer = $4, violation_status = $5, license_number = $6, plate_number = $7
-      WHERE violation_id = $8 RETURNING *`;
-
-    const values = [date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number, violation_id];
-
-    const result = await pool.query(query, values);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Violation not found" });
-    }
-
-    if (license_number.length !== 13) {
+    if (!license_number || license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
+      });
+    }
+
+    if (!plate_number) {
+      return res.status(400).json({
+        error: "Plate number is required."
       });
     }
 
@@ -241,6 +242,17 @@ export const updateViolation = async (req, res) => {
       return res.status(400).json({
         error: "Plate number must be 3 letters followed by 1, 2, or 4 numbers."
       });
+    }
+
+    const query = `UPDATE violation SET date = $1, location = $2, corresponding_fine_amount = $3, apprehending_officer = $4, violation_status = $5, license_number = $6, plate_number = $7
+      WHERE violation_id = $8 RETURNING *`;
+
+    const values = [date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number, violation_id];
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Violation not found" });
     }
 
     // Update violation types: delete old, insert new

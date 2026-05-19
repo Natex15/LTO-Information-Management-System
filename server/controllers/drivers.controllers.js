@@ -86,16 +86,17 @@ export async function createDriver(req, res) {
   try {
     const {license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date} = req.body;
 
-    const result = await pool.query(
-      `INSERT INTO driver (license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date || null]
-    );
-
-    if (license_number.length !== 13) {
+    if (!license_number || license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
+      });
+    }
+
+    if (!date_of_birth) {
+      return res.status(400).json({
+        success: false,
+        error: "Date of birth is required."
       });
     }
 
@@ -119,6 +120,12 @@ export async function createDriver(req, res) {
         error: "Driver must be at least 17 years old."
       });
     }
+
+    const result = await pool.query(
+      `INSERT INTO driver (license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date || null]
+    );
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -129,22 +136,20 @@ export async function createDriver(req, res) {
 
 export async function updateDriver(req, res) {
   try {
-
     const { license_number } = req.params;
-
     const {full_name, sex, address, date_of_birth, issuance_date, license_status, license_type, expiration_date} = req.body;
 
-    const query = `UPDATE driver SET full_name = $1, sex = $2, address = $3, date_of_birth = $4, issuance_date = $5, license_status = $6, license_type = $7, expiration_date = $8
-      WHERE license_number = $9 RETURNING *`;
-
-    const values = [full_name, sex, address, date_of_birth, issuance_date || null, license_status, license_type, expiration_date, license_number];
-
-    const result = await pool.query(query, values);
-
-    if (license_number.length !== 13) {
+    if (!license_number || license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
+      });
+    }
+
+    if (!date_of_birth) {
+      return res.status(400).json({
+        success: false,
+        error: "Date of birth is required."
       });
     }
 
@@ -169,12 +174,18 @@ export async function updateDriver(req, res) {
       });
     }
 
+    const query = `UPDATE driver SET full_name = $1, sex = $2, address = $3, date_of_birth = $4, issuance_date = $5, license_status = $6, license_type = $7, expiration_date = $8
+      WHERE license_number = $9 RETURNING *`;
+
+    const values = [full_name, sex, address, date_of_birth, issuance_date || null, license_status, license_type, expiration_date, license_number];
+
+    const result = await pool.query(query, values);
+
     res.json(result.rows[0]);
 
   } catch (error) {
     console.error("Update Driver Error:", error.message);
     res.status(500).json({ error: error.message });
-
   }
 }
 
