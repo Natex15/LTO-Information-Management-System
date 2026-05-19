@@ -180,6 +180,11 @@ export default function ViolationsPage() {
         setCurrentPage(1);
     }, []);
 
+    useEffect(() => {
+        setCurrentPage(1);
+        setSelectedViolation(null);
+    }, [searchQuery]);
+
     return (
         <>
             <Sidebar />
