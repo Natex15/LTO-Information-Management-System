@@ -250,15 +250,19 @@ export async function deleteDriver(req, res) {
 export async function searchDriver(req, res) {
 
   try {
-    const { driverName } = req.query;
+    const { search } = req.query;
 
-    const query = `SELECT * FROM driver WHERE full_name ILIKE $1`;
+    const query = `
+      SELECT * FROM driver 
+      WHERE full_name ILIKE $1 
+      OR license_number ILIKE $1
+    `;
 
-    const values = [`%${driverName}%`];
+    const values = [`%${search}%`];
 
     const result = await pool.query(query, values);
 
-     res.json(result.rows);
+    res.json(result.rows);
 
   } catch (error) {
 
