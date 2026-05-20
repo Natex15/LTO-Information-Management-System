@@ -21,6 +21,20 @@ export default function ReportsPage() {
     const [reportLoading, setReportLoading] = useState(false);
     const [reportError, setReportError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [allDrivers, setAllDrivers] = useState([]);
+
+    const fetchAllDrivers = async () => {
+      if (allDrivers.length > 0) return; // only fetch once
+        try {
+          const response = await fetch(`${API_BASE}/api/drivers`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          });
+          const data = await response.json();
+          setAllDrivers(data);
+        } catch (err) {
+          console.error(err);
+        }
+    };
 
     // Filter states
     const [filters, setFilters] = useState({
@@ -149,11 +163,18 @@ export default function ReportsPage() {
                     </div>
                 );
             case 'vehicles-by-driver':
-                return (
-                    <div className="reportFilters">
-                        <input type="text" name="license_number" placeholder="Driver License Number" value={filters.license_number} onChange={handleFilterChange} required />
-                    </div>
-                );
+              return (
+                <div className="reportFilters">
+                  <select name="license_number" value={filters.license_number} onChange={handleFilterChange}>
+                    <option value="">Select a driver...</option>
+                    {allDrivers.map(driver => (
+                      <option key={driver.license_number} value={driver.license_number}>
+                        {driver.license_number} — {driver.full_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
             case 'expired-registrations':
                 return (
                     <div className="reportFilters">
@@ -168,15 +189,22 @@ export default function ReportsPage() {
                     </div>
                 );
             case 'violations-by-driver':
-                return (
-                    <div className="reportFilters">
-                        <input type="text" name="license_number" placeholder="Driver License Number" value={filters.license_number} onChange={handleFilterChange} required />
-                        <label>Start Date</label>
-                        <input type="date" name="start_date" value={filters.start_date} onChange={handleFilterChange} />
-                        <label>End Date</label>
-                        <input type="date" name="end_date" value={filters.end_date} onChange={handleFilterChange} />
-                    </div>
-                );
+              return (
+                <div className="reportFilters">
+                  <select name="license_number" value={filters.license_number} onChange={handleFilterChange}>
+                    <option value="">Select a driver...</option>
+                    {allDrivers.map(driver => (
+                      <option key={driver.license_number} value={driver.license_number}>
+                        {driver.license_number} — {driver.full_name}
+                      </option>
+                    ))}
+                  </select>
+                  <label>Start Date</label>
+                  <input type="date" name="start_date" value={filters.start_date} onChange={handleFilterChange} />
+                  <label>End Date</label>
+                  <input type="date" name="end_date" value={filters.end_date} onChange={handleFilterChange} />
+                </div>
+              );
             case 'violations-by-type':
                 return (
                     <div className="reportFilters">
@@ -268,6 +296,9 @@ export default function ReportsPage() {
                                 setResults(null);
                                 setReportError(null);
                                 setCurrentPage(1);
+                                if (report.id === 'vehicles-by-driver' || report.id === 'violations-by-driver') {
+                                  fetchAllDrivers();
+                                }
                             }}
                         >
                             <h3>{report.name}</h3>
