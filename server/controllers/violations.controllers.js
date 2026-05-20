@@ -213,6 +213,12 @@ export const updateViolation = async (req, res) => {
       });
     }
 
+    if (!plate_number) {
+      return res.status(400).json({
+        error: "Plate number is required."
+      });
+    }
+
     const plateLength = plate_number.length;
 
     if (plateLength !== 4 && plateLength !== 5 && plateLength !== 7) {

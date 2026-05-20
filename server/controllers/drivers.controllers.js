@@ -95,6 +95,13 @@ export async function createDriver(req, res) {
       });
     }
 
+    if (!date_of_birth) {
+      return res.status(400).json({
+        success: false,
+        error: "Date of birth is required."
+      });
+    }
+
     const birthDate = new Date(date_of_birth);
     const today = new Date();
 
@@ -123,6 +130,12 @@ export async function createDriver(req, res) {
       [license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date || null]
     );
 
+    const result = await pool.query(
+      `INSERT INTO driver (license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date || null]
+    );
+
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Add Driver Error:", error.message);
@@ -133,9 +146,7 @@ export async function createDriver(req, res) {
 // Update Driver
 export async function updateDriver(req, res) {
   try {
-
     const { license_number } = req.params;
-
     const {full_name, sex, address, date_of_birth, issuance_date, license_status, license_type, expiration_date} = req.body;
 
     const query = `UPDATE driver SET full_name = $1, sex = $2, address = $3, date_of_birth = $4, issuance_date = $5, license_status = $6, license_type = $7, expiration_date = $8
@@ -181,7 +192,6 @@ export async function updateDriver(req, res) {
   } catch (error) {
     console.error("Update Driver Error:", error.message);
     res.status(500).json({ error: error.message });
-
   }
 }
 

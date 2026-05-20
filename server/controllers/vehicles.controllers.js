@@ -143,7 +143,6 @@ export async function addVehicle(req, res) {
 export async function updateVehicle(req, res) {
   try {
     const {plate_number: old_plate_number} = req.params;
-
     const {plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number} = req.body;
 
     const query = `UPDATE vehicle SET plate_number = $1, engine_number = $2, chassis_number = $3, color = $4, make = $5, model = $6, year = $7, vehicle_type = $8, license_number = $9
@@ -157,6 +156,12 @@ export async function updateVehicle(req, res) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
+      });
+    }
+
+    if (!plate_number) {
+      return res.status(400).json({
+        error: "Plate number is required."
       });
     }
 
@@ -204,13 +209,13 @@ export async function updateVehicle(req, res) {
       });
     }
 
-    if (engine_number.length !== 12) {
+    if (!engine_number || engine_number.length !== 12) {
       return res.status(400).json({
         error: "Engine number must be exactly 12 characters long."
       });
     }
 
-    if (chassis_number.length !== 12) {
+    if (!chassis_number || chassis_number.length !== 12) {
       return res.status(400).json({
         error: "Chassis number must be exactly 12 characters long."
       });
