@@ -247,8 +247,8 @@ export default function VehiclesPage() {
                             }}
                         >Add Vehicle
                         </button>
-                        <button className="deleteBtn" onClick={handleDeleteVehicle}> Delete Vehicle</button>
                         <button className="updateBtn" onClick={handleUpdateVehicle}>Update Vehicle</button>
+                        <button className="deleteBtn" onClick={handleDeleteVehicle}> Delete Vehicle</button>
                     </div>
                 </div>
 
