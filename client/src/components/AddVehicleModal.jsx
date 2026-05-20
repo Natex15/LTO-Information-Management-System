@@ -6,6 +6,7 @@ export default function AddVehicleModal({
     formData,
     handleChange,
     handleCreateVehicle,
+    allDrivers,
 }) {
 
     if (!showModal) return null;
@@ -102,14 +103,19 @@ export default function AddVehicleModal({
                         <option value="Heavy Articulated Vehicle">Heavy Articulated Vehicle</option>
                     </select>
 
-                    <input
-                        type="text"
+                    <select
                         name="license_number"
-                        placeholder="License Number"
                         value={formData.license_number}
                         onChange={handleChange}
                         required
-                    />
+                    >
+                        <option value="">Select License Number</option>
+                        {allDrivers.map(driver => (
+                            <option key={driver.license_number} value={driver.license_number}>
+                                {driver.license_number} — {driver.full_name}
+                            </option>
+                        ))}
+                    </select>
 
                     <div className="modalActions">
 

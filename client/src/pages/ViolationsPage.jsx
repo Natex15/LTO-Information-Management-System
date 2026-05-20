@@ -24,7 +24,7 @@ const VIOLATION_TYPE_OPTIONS = [
 ];
 
 export default function ViolationsPage() {
-    const { violations, setViolations, loading, error, loadViolations } = useData();
+    const { violations, setViolations, loading, error, loadViolations, drivers, vehicles } = useData();
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState("add");
     const [selectedViolation, setSelectedViolation] = useState(null);
@@ -57,7 +57,16 @@ export default function ViolationsPage() {
 
     // For input fields
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === "license_number") {
+            setFormData(prev => ({
+                ...prev,
+                license_number: value,
+                plate_number: "" // Reset plate number when driver changes
+            }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     // For type toggling
@@ -308,9 +317,41 @@ export default function ViolationsPage() {
                                 <option value="Contested">Contested</option>
                             </select>
 
-                            <input type="text" name="license_number" placeholder="Driver License Number" value={formData.license_number} onChange={handleChange} />
+                            <select
+                                name="license_number"
+                                value={formData.license_number}
+                                onChange={handleChange}
+                                required
+                            >
+                                <option value="">Select Driver</option>
+                                {drivers.map(driver => (
+                                    <option key={driver.license_number} value={driver.license_number}>
+                                        {driver.license_number} — {driver.full_name}
+                                    </option>
+                                ))}
+                            </select>
 
-                            <input type="text" name="plate_number" placeholder="Vehicle Plate Number" value={formData.plate_number} onChange={handleChange} />
+                            <select
+                                name="plate_number"
+                                value={formData.plate_number}
+                                onChange={handleChange}
+                                required
+                                disabled={!formData.license_number}
+                            >
+                                <option value="">
+                                    {!formData.license_number 
+                                        ? "Select a driver first" 
+                                        : "Select Vehicle (Plate Number)"}
+                                </option>
+                                {vehicles
+                                    .filter(v => v.license_number === formData.license_number)
+                                    .map(v => (
+                                        <option key={v.plate_number} value={v.plate_number}>
+                                            {v.plate_number} — {v.make} {v.model} ({v.year})
+                                        </option>
+                                    ))
+                                }
+                            </select>
 
                             <label>Violation Types</label>
                             <div className="violationTypesGrid">

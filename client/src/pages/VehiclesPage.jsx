@@ -5,13 +5,28 @@ import AddVehicleModal from "../components/AddVehicleModal";
 import Pagination from "../components/Pagination";
 import { useData } from "../context/DataContext";
 
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
 export default function VehiclesPage() {
     const { vehicles, setVehicles, loading, error, loadVehicles } = useData();
     const [showModal, setShowModal] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [modalMode, setModalMode] = useState("add");
     const [currentPage, setCurrentPage] = useState(1);
+    const [allDrivers, setAllDrivers] = useState([]);
 
+    const fetchAllDrivers = async () => {
+        if (allDrivers.length > 0) return; // only fetch once
+        try {
+            const response = await fetch(`${API_BASE}/api/drivers`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            });
+            const data = await response.json();
+            setAllDrivers(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
     const [formData, setFormData] = useState({
         plate_number: "",
         engine_number: "",
@@ -52,10 +67,10 @@ export default function VehiclesPage() {
             );
 
             if (!response.ok) {
-            const errorData = await response.json();
+                const errorData = await response.json();
 
-            alert(errorData.error || "Failed to create vehicle");
-            return;
+                alert(errorData.error || "Failed to create vehicle");
+                return;
             }
 
             const data = await response.json();
@@ -120,7 +135,7 @@ export default function VehiclesPage() {
         if (!selectedVehicle) {
             return;
         }
-
+        fetchAllDrivers();
         setModalMode("update");
 
         setFormData({
@@ -159,10 +174,10 @@ export default function VehiclesPage() {
             });
 
             if (!response.ok) {
-            const errorData = await response.json();
+                const errorData = await response.json();
 
-            alert(errorData.error || "Failed to update vehicle");
-            return;
+                alert(errorData.error || "Failed to update vehicle");
+                return;
             }
 
             const updatedVehicle = await response.json();
@@ -242,6 +257,7 @@ export default function VehiclesPage() {
                         <button
                             className="addBtn"
                             onClick={() => {
+                                fetchAllDrivers();
                                 setModalMode("add");
                                 setShowModal(true);
                             }}
@@ -296,16 +312,15 @@ export default function VehiclesPage() {
                                 </tbody>
                             </table>
                         </div>
-                        <Pagination 
-                            currentPage={currentPage} 
-                            totalPages={totalPages} 
-                            onPageChange={setCurrentPage} 
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
                         />
                     </div>
                 )}
             </div>
-
-            <AddVehicleModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateVehicle={modalMode === "add" ? handleCreateVehicle : handlePatchVehicle} />
+            <AddVehicleModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateVehicle={modalMode === "add" ? handleCreateVehicle : handlePatchVehicle} allDrivers={allDrivers} />
         </>
     );
 }
