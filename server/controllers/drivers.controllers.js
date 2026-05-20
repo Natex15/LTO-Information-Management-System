@@ -103,6 +103,17 @@ export async function createDriver(req, res) {
     }
 
     const birthDate = new Date(date_of_birth);
+
+    // Expiration date should be after dob 
+    const expirationDate = new Date(expiration_date);
+
+    if (expirationDate < birthDate) {
+      return res.status(400).json({
+        success: false,
+        error: "Expiration date cannot be earlier than date of birth."
+      });
+    }
+
     const today = new Date();
 
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -166,6 +177,17 @@ export async function updateDriver(req, res) {
 
     // Age Calculation
     const birthDate = new Date(date_of_birth);
+
+    const expirationDate = new Date(expiration_date);
+
+    // Expiration date should be after dob
+    if (expirationDate < birthDate) {
+      return res.status(400).json({
+        success: false,
+        error: "Expiration date cannot be earlier than date of birth."
+      });
+    }
+
     const today = new Date();
 
     let age = today.getFullYear() - birthDate.getFullYear();
