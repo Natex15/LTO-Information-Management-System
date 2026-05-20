@@ -8,6 +8,7 @@ import VehicleRegistrationsPage from "./pages/VehicleRegistrationsPage";
 import ReportsPage from "./pages/ReportsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { DataProvider } from "./context/DataContext";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
     return (
@@ -28,6 +29,8 @@ function App() {
                     <Route path="/violations" element={<ViolationsPage />} />
                     <Route path="/reports" element={<ReportsPage />} />
                 </Route>
+
+                <Route path="*" element={<NotFoundPage />} />
             </Routes>
     );
 }
