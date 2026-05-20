@@ -98,7 +98,8 @@ export default function AddVehicleModal({
                         <option value="Tricycle">Tricycle</option>
                         <option value="M1 Vehicle">M1 Vehicle (Not More Than 8 seats)</option>
                         <option value="M2 Vehicle">M2 Vehicle (More Than 8 Seats)</option>
-                        <option value="Light & Heavy Commercial Vehicle">Light & Heavy Commercial Vehicle</option>
+                        <option value="Heavy Commercial Vehicle">Heavy Commercial Vehicle</option>
+                        <option value= "Light Commercial Vehicle">Light Commercial Vehicle</option>
                         <option value="Passenger Vehicle">Passenger Vehicle</option>
                         <option value="Articulated Passenger Car">Articulated Passenger Car</option>
                         <option value="Heavy Articulated Vehicle">Heavy Articulated Vehicle</option>

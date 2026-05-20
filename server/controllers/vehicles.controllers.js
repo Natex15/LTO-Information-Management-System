@@ -113,16 +113,16 @@ export async function addVehicle(req, res) {
     }
 
     // Engine validator
-    if (!engine_number || engine_number.length !== 12) {
+    if (!engine_number || engine_number.length !== 10) {
       return res.status(400).json({
-        error: "Engine number must be exactly 12 characters long."
+        error: "Engine number must be exactly 10 characters long."
       });
     }
 
     // Chassis validator
-    if (!chassis_number || chassis_number.length !== 12) {
+    if (!chassis_number || chassis_number.length !== 17) {
       return res.status(400).json({
-        error: "Chassis number must be exactly 12 characters long."
+        error: "Chassis number must be exactly 17 characters long."
       });
     }
 
@@ -225,15 +225,15 @@ export async function updateVehicle(req, res) {
       });
     }
 
-    if (!engine_number || engine_number.length !== 12) {
+    if (!engine_number || engine_number.length !== 10) {
       return res.status(400).json({
-        error: "Engine number must be exactly 12 characters long."
+        error: "Engine number must be exactly 10 characters long."
       });
     }
 
-    if (!chassis_number || chassis_number.length !== 12) {
+    if (!chassis_number || chassis_number.length !== 17) {
       return res.status(400).json({
-        error: "Chassis number must be exactly 12 characters long."
+        error: "Chassis number must be exactly 17 characters long."
       });
     }
 
