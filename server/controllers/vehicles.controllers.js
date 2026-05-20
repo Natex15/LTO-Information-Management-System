@@ -126,6 +126,16 @@ export async function addVehicle(req, res) {
       });
     }
 
+    // Year validator
+    const currentYear = new Date().getFullYear();
+    const vehicleYear = Number(year);
+
+    if (!year || isNaN(vehicleYear) || vehicleYear < 1900 || vehicleYear > currentYear + 1) {
+      return res.status(400).json({
+        error: "Vehicle year must be a valid year."
+      });
+    }
+
     const result = await pool.query(
       `INSERT INTO vehicle (plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
@@ -224,6 +234,16 @@ export async function updateVehicle(req, res) {
     if (!chassis_number || chassis_number.length !== 12) {
       return res.status(400).json({
         error: "Chassis number must be exactly 12 characters long."
+      });
+    }
+
+    // Year validator
+    const currentYear = new Date().getFullYear();
+    const vehicleYear = Number(year);
+
+    if (!year || isNaN(vehicleYear) || vehicleYear < 1900 || vehicleYear > currentYear + 1) {
+      return res.status(400).json({
+        error: "Vehicle year must be a valid year."
       });
     }
 
