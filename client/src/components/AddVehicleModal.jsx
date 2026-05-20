@@ -7,6 +7,7 @@ export default function AddVehicleModal({
     handleChange,
     handleCreateVehicle,
     allDrivers,
+    resetForm,
 }) {
 
     if (!showModal) return null;
@@ -132,6 +133,7 @@ export default function AddVehicleModal({
                             onClick={() => {
                                 setShowModal(false);
                                 setModalMode("add");
+                                if (resetForm) resetForm();
                             }}
                         >
                             Cancel

@@ -6,6 +6,7 @@ export default function AddDriverModal({
     formData,
     handleChange,
     handleCreateDriver,
+    resetForm,
 }) {
 
     if (!showModal) return null;
@@ -162,6 +163,7 @@ export default function AddDriverModal({
                             onClick={() => {
                                 setShowModal(false);
                                 setModalMode("add");
+                                if (resetForm) resetForm();
                             }}
                         >
                             Cancel

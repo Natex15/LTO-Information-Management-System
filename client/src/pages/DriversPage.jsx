@@ -26,6 +26,20 @@ export default function DriversPage() {
         expiration_date: ""
     });
 
+    const resetForm = () => {
+        setFormData({
+            license_number: "",
+            full_name: "",
+            sex: "",
+            address: "",
+            date_of_birth: "",
+            issuance_date: "",
+            license_status: "",
+            license_type: "",
+            expiration_date: ""
+        });
+    };
+
     // For input fields
     const handleChange = (e) => {
         setFormData({
@@ -247,6 +261,7 @@ export default function DriversPage() {
                     <button
                         className="addBtn"
                         onClick={() => {
+                            resetForm();
                             setModalMode("add");
                             setShowModal(true);
                         }}
@@ -310,7 +325,7 @@ export default function DriversPage() {
                 )}
             </div>
 
-            <AddDriverModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateDriver={modalMode === "add" ? handleCreateDriver : handlePatchDriver}/>
+            <AddDriverModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateDriver={modalMode === "add" ? handleCreateDriver : handlePatchDriver} resetForm={resetForm}/>
             <DriverSummaryModal showModal={showSummaryModal} setShowModal={setShowSummaryModal} driver={selectedDriver} />
         </>
     );

@@ -39,6 +39,20 @@ export default function VehiclesPage() {
         license_number: ""
     });
 
+    const resetForm = () => {
+        setFormData({
+            plate_number: "",
+            engine_number: "",
+            chassis_number: "",
+            color: "",
+            make: "",
+            model: "",
+            year: "",
+            vehicle_type: "",
+            license_number: ""
+        });
+    };
+
     // For input fields
     const handleChange = (e) => {
         setFormData({
@@ -258,6 +272,7 @@ export default function VehiclesPage() {
                             className="addBtn"
                             onClick={() => {
                                 fetchAllDrivers();
+                                resetForm();
                                 setModalMode("add");
                                 setShowModal(true);
                             }}
@@ -320,7 +335,7 @@ export default function VehiclesPage() {
                     </div>
                 )}
             </div>
-            <AddVehicleModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateVehicle={modalMode === "add" ? handleCreateVehicle : handlePatchVehicle} allDrivers={allDrivers} />
+            <AddVehicleModal showModal={showModal} setShowModal={setShowModal} modalMode={modalMode} setModalMode={setModalMode} formData={formData} handleChange={handleChange} handleCreateVehicle={modalMode === "add" ? handleCreateVehicle : handlePatchVehicle} allDrivers={allDrivers} resetForm={resetForm} />
         </>
     );
 }
