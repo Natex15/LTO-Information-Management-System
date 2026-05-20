@@ -100,10 +100,16 @@ export const createViolation = async (req, res) => {
     );
 
     // Validators
-    if (license_number.length !== 13) {
+    if (!license_number || license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
+      });
+    }
+
+    if (!plate_number) {
+      return res.status(400).json({
+        error: "Plate number is required."
       });
     }
 
@@ -206,7 +212,7 @@ export const updateViolation = async (req, res) => {
     const values = [date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number, violation_id];
 
     // Same validators
-    if (license_number.length !== 13) {
+    if (!license_number || license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."

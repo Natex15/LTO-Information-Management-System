@@ -88,7 +88,7 @@ export async function createDriver(req, res) {
     const {license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date} = req.body;
 
     // Validators
-    if (license_number.length !== 13) {
+    if (!license_number || license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
@@ -130,12 +130,6 @@ export async function createDriver(req, res) {
       [license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date || null]
     );
 
-    const result = await pool.query(
-      `INSERT INTO driver (license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [license_number, full_name, sex, license_status, expiration_date, address, date_of_birth, license_type, issuance_date || null]
-    );
-
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Add Driver Error:", error.message);
@@ -155,12 +149,20 @@ export async function updateDriver(req, res) {
     const values = [full_name, sex, address, date_of_birth, issuance_date || null, license_status, license_type, expiration_date, license_number];
 
     // Validator
-    if (license_number.length !== 13) {
+    if (!license_number || license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
       });
     }
+
+    if (!date_of_birth) {
+      return res.status(400).json({
+        success: false,
+        error: "Date of birth is required."
+      });
+    }
+
 
     // Age Calculation
     const birthDate = new Date(date_of_birth);

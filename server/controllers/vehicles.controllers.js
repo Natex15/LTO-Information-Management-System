@@ -54,10 +54,16 @@ export async function addVehicle(req, res) {
     const {plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number} = req.body;
 
     // Validators
-    if (license_number.length !== 13) {
+    if (!license_number || license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
+      });
+    }
+
+    if (!plate_number) {
+      return res.status(400).json({
+        error: "Plate number is required."
       });
     }
 
@@ -152,7 +158,7 @@ export async function updateVehicle(req, res) {
     const values = [plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number, old_plate_number];
 
     // Same validators
-    if (license_number.length !== 13) {
+    if (!license_number || license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
