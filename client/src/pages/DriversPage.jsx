@@ -205,7 +205,7 @@ export default function DriversPage() {
 
 
             if (searchTerm.trim() !== "") {
-                url = `/api/drivers/search?driverName=${encodeURIComponent(searchTerm)}`;
+                url = `/api/drivers/search?search=${encodeURIComponent(searchTerm)}`;
             }
 
             const response = await fetch(url, {
@@ -243,7 +243,7 @@ export default function DriversPage() {
                 <div className="headerRow">
                     <h2 style={{ marginBottom: "10px", userSelect: "none", fontSize: "30px", marginLeft: "11px", color: "#FFFFFF" }}>Registered Drivers</h2>
                     <div className="searchRow">
-                    <input type="text" className="searchBar" placeholder="Search by driver name..." onChange={handleSearchDriver}/>
+                    <input type="text" className="searchBar" placeholder="Search by license number/driver name..." onChange={handleSearchDriver}/>
                     <button
                         className="addBtn"
                         onClick={() => {
