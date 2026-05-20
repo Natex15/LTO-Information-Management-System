@@ -1,5 +1,6 @@
 import pool from '../db/pool.js';
 
+// Get all vehicles
 export const getAllVehicles = async (req, res) => {
   try {
     const conditions = [];
@@ -35,6 +36,7 @@ export const getAllVehicles = async (req, res) => {
   }
 };
 
+// Search vehicles by license num
 export const getVehiclesByLicense = async (req, res) => {
   try {
     const { license_number } = req.params;
@@ -46,23 +48,20 @@ export const getVehiclesByLicense = async (req, res) => {
   }
 };
 
+// Add vehicle
 export async function addVehicle(req, res) {
   try {
     const {plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number} = req.body;
 
-    if (!license_number || license_number.length !== 13) {
+    // Validators
+    if (license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
       });
     }
 
-    if (!plate_number) {
-      return res.status(400).json({
-        error: "Plate number is required."
-      });
-    }
-
+    // There are plate numbers that have less than 4 numbers
     const plateLength = plate_number.length;
 
     if (plateLength !== 4 && plateLength !== 5 && plateLength !== 7) {
@@ -107,12 +106,14 @@ export async function addVehicle(req, res) {
       });
     }
 
+    // Engine validator
     if (!engine_number || engine_number.length !== 12) {
       return res.status(400).json({
         error: "Engine number must be exactly 12 characters long."
       });
     }
 
+    // Chassis validator
     if (!chassis_number || chassis_number.length !== 12) {
       return res.status(400).json({
         error: "Chassis number must be exactly 12 characters long."
@@ -138,12 +139,20 @@ export async function addVehicle(req, res) {
   }
 }
 
+// Update Vehicle
 export async function updateVehicle(req, res) {
   try {
     const {plate_number: old_plate_number} = req.params;
     const {plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number} = req.body;
 
-    if (!license_number || license_number.length !== 13) {
+    const query = `UPDATE vehicle SET plate_number = $1, engine_number = $2, chassis_number = $3, color = $4, make = $5, model = $6, year = $7, vehicle_type = $8, license_number = $9
+      WHERE plate_number = $10 RETURNING *`;
+
+    
+    const values = [plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number, old_plate_number];
+
+    // Same validators
+    if (license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
@@ -212,11 +221,6 @@ export async function updateVehicle(req, res) {
       });
     }
 
-    const query = `UPDATE vehicle SET plate_number = $1, engine_number = $2, chassis_number = $3, color = $4, make = $5, model = $6, year = $7, vehicle_type = $8, license_number = $9
-      WHERE plate_number = $10 RETURNING *`;
-    
-    const values = [plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number, old_plate_number];
-
     const result = await pool.query(query, values);
 
     res.json(result.rows[0]);
@@ -233,6 +237,7 @@ export async function updateVehicle(req, res) {
   }
 }
 
+// Delete Vehicle
 export async function deleteVehicle(req, res) {
   try {
     const {plate_number} = req.params;
@@ -253,6 +258,7 @@ export async function deleteVehicle(req, res) {
   }
 }
 
+// Filter for expired regs.
 export async function getExpiredRegistrations(req, res) {
   try {
     const { date } = req.query;
@@ -265,6 +271,7 @@ export async function getExpiredRegistrations(req, res) {
   }
 }
 
+// Getting the vehicles of a driver
 export async function getVehiclesByDriver(req, res) {
   try {
     const { driverName } = req.query;
@@ -279,6 +286,8 @@ export async function getVehiclesByDriver(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+
+// Search vehicle by plate num
 export async function searchVehicle(req, res) {
 
   try {
@@ -299,6 +308,7 @@ export async function searchVehicle(req, res) {
   }
 }
 
+// Find vehicle violation by location
 export async function findVehicleViolation(req, res) {
   try {
     const { location } = req.query;

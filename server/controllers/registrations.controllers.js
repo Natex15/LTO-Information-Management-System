@@ -63,8 +63,15 @@ export const getRegistrationsByPlate = async (req, res) => {
 // CREATE a new registration/renewal
 export const createRegistration = async (req, res) => {
   try {
-    const { registration_number, plate_number, registration_date, expiration_date, registration_status } = req.body;
+    const {
+      registration_number,
+      plate_number,
+      registration_date,
+      expiration_date,
+      registration_status
+    } = req.body;
 
+    // Validators
     if (!registration_number || registration_number.length !== 13) {
       return res.status(400).json({
         success: false,
@@ -82,7 +89,7 @@ export const createRegistration = async (req, res) => {
       });
     }
 
-    // Prevent registration date from being later than expiration date
+    // If registration date is later than expiration date
     if (regDate > expDate) {
       return res.status(400).json({
         success: false,
@@ -90,15 +97,62 @@ export const createRegistration = async (req, res) => {
       });
     }
 
-    const result = await pool.query(
-      `INSERT INTO vehicle_registration (registration_number, plate_number, registration_date, expiration_date, registration_status)
-      VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [registration_number, plate_number, registration_date, expiration_date, registration_status || 'Active']
+    // Validator if according to date the registration is still active/suspended, but expired is selected
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const cleanExpDate = new Date(expDate);
+    cleanExpDate.setHours(0, 0, 0, 0);
+
+    if (registration_status === "Expired" && cleanExpDate >= today) {
+      return res.status(400).json({
+        success: false,
+        error: "Registration status cannot be Expired if the expiration date has not passed yet."
+      });
+    }
+
+    await pool.query(
+      `INSERT INTO vehicle_registration 
+      (registration_number, plate_number, registration_date, expiration_date, registration_status)
+      VALUES ($1, $2, $3, $4, $5)`,
+      [
+        registration_number,
+        plate_number,
+        registration_date,
+        expiration_date,
+        registration_status || "Active"
+      ]
     );
 
-    res.json(result.rows[0]);
+    const fullResult = await pool.query(
+      `SELECT 
+        vr.registration_number,
+        vr.plate_number,
+        vr.registration_date,
+        vr.expiration_date,
+        vr.registration_status,
+        v.make,
+        v.model,
+        v.year,
+        v.vehicle_type
+      FROM vehicle_registration vr
+      LEFT JOIN vehicle v
+        ON vr.plate_number = v.plate_number
+      WHERE vr.registration_number = $1`,
+      [registration_number]
+    );
+
+    res.json(fullResult.rows[0]);
   } catch (error) {
     console.error("Create Registration Error:", error.message);
+
+    if (error.code === "23505") {
+      return res.status(409).json({
+        success: false,
+        error: "Duplicate registration number."
+      });
+    }
+
     res.status(500).json({ error: error.message });
   }
 };
@@ -107,8 +161,14 @@ export const createRegistration = async (req, res) => {
 export const updateRegistration = async (req, res) => {
   try {
     const { registration_number } = req.params;
-    const { plate_number, registration_date, expiration_date, registration_status } = req.body;
+    const {
+      plate_number,
+      registration_date,
+      expiration_date,
+      registration_status
+    } = req.body;
 
+    // Same Validators
     if (!registration_number || registration_number.length !== 13) {
       return res.status(400).json({
         success: false,
@@ -126,7 +186,6 @@ export const updateRegistration = async (req, res) => {
       });
     }
 
-    // Prevent registration date from being later than expiration date
     if (regDate > expDate) {
       return res.status(400).json({
         success: false,
@@ -134,18 +193,62 @@ export const updateRegistration = async (req, res) => {
       });
     }
 
-    const query = `UPDATE vehicle_registration SET plate_number = $1, registration_date = $2, expiration_date = $3, registration_status = $4
-      WHERE registration_number = $5 RETURNING *`;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    const values = [plate_number, registration_date, expiration_date, registration_status, registration_number];
+    const cleanExpDate = new Date(expDate);
+    cleanExpDate.setHours(0, 0, 0, 0);
 
-    const result = await pool.query(query, values);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Registration not found" });
+    if (registration_status === "Expired" && cleanExpDate >= today) {
+      return res.status(400).json({
+        success: false,
+        error: "Registration status cannot be Expired if the expiration date has not passed yet."
+      });
     }
 
-    res.json(result.rows[0]);
+    const result = await pool.query(
+      `UPDATE vehicle_registration 
+      SET plate_number = $1, 
+          registration_date = $2, 
+          expiration_date = $3, 
+          registration_status = $4
+      WHERE registration_number = $5 
+      RETURNING *`,
+      [
+        plate_number,
+        registration_date,
+        expiration_date,
+        registration_status,
+        registration_number
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Registration not found"
+      });
+    }
+
+    const fullResult = await pool.query(
+      `SELECT 
+        vr.registration_number,
+        vr.plate_number,
+        vr.registration_date,
+        vr.expiration_date,
+        vr.registration_status,
+        v.make,
+        v.model,
+        v.year,
+        v.vehicle_type
+      FROM vehicle_registration vr
+      LEFT JOIN vehicle v
+        ON vr.plate_number = v.plate_number
+      WHERE vr.registration_number = $1`,
+      [registration_number]
+    );
+
+    res.json(fullResult.rows[0]);
   } catch (error) {
     console.error("Update Registration Error:", error.message);
     res.status(500).json({ error: error.message });

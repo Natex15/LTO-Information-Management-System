@@ -1,5 +1,6 @@
 import pool from '../db/pool.js';
 
+// Get all violations
 export const getAllViolations = async (req, res) => {
   try {
     const conditions = [];
@@ -46,6 +47,7 @@ export const getAllViolations = async (req, res) => {
   }
 };
 
+// Getting violations by license num
 export const getViolationsByLicense = async (req, res) => {
   try {
     const { license_number } = req.params;
@@ -91,19 +93,21 @@ export const createViolation = async (req, res) => {
   try {
     const { date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number, violation_types } = req.body;
 
-    if (!license_number || license_number.length !== 13) {
+    const result = await pool.query(
+      `INSERT INTO violation (date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number)
+      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [date, location, corresponding_fine_amount, apprehending_officer, violation_status || 'Unpaid', license_number, plate_number]
+    );
+
+    // Validators
+    if (license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
       });
     }
 
-    if (!plate_number) {
-      return res.status(400).json({
-        error: "Plate number is required."
-      });
-    }
-
+    // License number validators
     const plateLength = plate_number.length;
 
     if (plateLength !== 4 && plateLength !== 5 && plateLength !== 7) {
@@ -148,11 +152,20 @@ export const createViolation = async (req, res) => {
       });
     }
 
-    const result = await pool.query(
-      `INSERT INTO violation (date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number)
-      VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [date, location, corresponding_fine_amount, apprehending_officer, violation_status || 'Unpaid', license_number, plate_number]
+    // Check if the vehicle belongs to the driver
+    const vehicleOwnerResult = await pool.query(
+      `SELECT * FROM vehicle 
+       WHERE plate_number = $1 
+       AND license_number = $2`,
+      [plate_number, license_number]
     );
+
+    if (vehicleOwnerResult.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "This vehicle does not belong to the selected driver."
+      });
+    }
 
     const newViolation = result.rows[0];
 
@@ -187,7 +200,13 @@ export const updateViolation = async (req, res) => {
     const { violation_id } = req.params;
     const { date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number, violation_types } = req.body;
 
-    if (!license_number || license_number.length !== 13) {
+    const query = `UPDATE violation SET date = $1, location = $2, corresponding_fine_amount = $3, apprehending_officer = $4, violation_status = $5, license_number = $6, plate_number = $7
+      WHERE violation_id = $8 RETURNING *`;
+
+    const values = [date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number, violation_id];
+
+    // Same validators
+    if (license_number.length !== 13) {
       return res.status(400).json({
         success: false,
         error: "License number must be exactly 13 characters long."
@@ -244,10 +263,20 @@ export const updateViolation = async (req, res) => {
       });
     }
 
-    const query = `UPDATE violation SET date = $1, location = $2, corresponding_fine_amount = $3, apprehending_officer = $4, violation_status = $5, license_number = $6, plate_number = $7
-      WHERE violation_id = $8 RETURNING *`;
+    // Check if the vehicle belongs to the driver
+    const vehicleOwnerResult = await pool.query(
+      `SELECT * FROM vehicle 
+       WHERE plate_number = $1 
+       AND license_number = $2`,
+      [plate_number, license_number]
+    );
 
-    const values = [date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number, violation_id];
+    if (vehicleOwnerResult.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "This vehicle does not belong to the selected driver."
+      });
+    }
 
     const result = await pool.query(query, values);
 

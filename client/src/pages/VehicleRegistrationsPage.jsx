@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from "../components/Sidebar";
 import Pagination from "../components/Pagination";
 import './RegistrationsPage.css';
@@ -14,6 +14,11 @@ export default function VehicleRegistrationsPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+
+    // For searching 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, statusFilter]);
 
     const [formData, setFormData] = useState({
         registration_number: "",
@@ -33,10 +38,12 @@ export default function VehicleRegistrationsPage() {
         });
     };
 
+    // For input fields
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // Fetching create registration API
     const handleCreate = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem("token");
@@ -47,8 +54,10 @@ export default function VehicleRegistrationsPage() {
                 body: JSON.stringify(formData)
             });
             if (!response.ok) {
-                alert(error || new Error("Failed to create registration"));
-                return;
+            const errorData = await response.json();
+
+            alert(errorData.error || "Failed to create registration");
+            return;
             }
             const data = await response.json();
             setRegistrations(prev => [...prev, data]);
@@ -59,6 +68,7 @@ export default function VehicleRegistrationsPage() {
         }
     };
 
+    // Fetching update registration API
     const handleUpdate = async (e) => {
         e.preventDefault();
         if (!selectedRegistration) return;
@@ -70,8 +80,10 @@ export default function VehicleRegistrationsPage() {
                 body: JSON.stringify(formData)
             });
             if (!response.ok) {
-                alert(error || new Error("Failed to update registration"));
-                return;
+            const errorData = await response.json();
+
+            alert(errorData.error || "Failed to update registration");
+            return;
             }
             const updated = await response.json();
             setRegistrations(prev => prev.map(r =>
@@ -86,6 +98,7 @@ export default function VehicleRegistrationsPage() {
         }
     };
 
+    // Fetching delete registration API
     const handleDelete = async () => {
         if (!selectedRegistration) return;
         const token = localStorage.getItem("token");
@@ -104,6 +117,7 @@ export default function VehicleRegistrationsPage() {
         }
     };
 
+    // For the edit modal
     const openEditModal = () => {
         if (!selectedRegistration) return;
         setModalMode("update");
@@ -117,12 +131,14 @@ export default function VehicleRegistrationsPage() {
         setShowModal(true);
     };
 
+    // For proper formatting of date
     const formatDate = (dateStr) => {
         if (!dateStr) return 'N/A';
         try { return new Date(dateStr).toISOString().split("T")[0]; }
         catch { return 'N/A'; }
     };
 
+    // For status
     const getStatusClass = (status) => {
         switch (status) {
             case 'Active': return 'reg-status-active';
@@ -132,6 +148,7 @@ export default function VehicleRegistrationsPage() {
         }
     };
 
+    // Filtering
     const isExpired = (expirationDate) => {
         if (!expirationDate) return false;
         return new Date(expirationDate) < new Date();
@@ -145,6 +162,7 @@ export default function VehicleRegistrationsPage() {
         return matchesSearch && matchesStatus;
     });
 
+    // Pagination
     const itemsPerPage = 5;
     const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;

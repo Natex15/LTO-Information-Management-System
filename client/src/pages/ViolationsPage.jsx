@@ -55,10 +55,12 @@ export default function ViolationsPage() {
         });
     };
 
+    // For input fields
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // For type toggling
     const handleTypeToggle = (type) => {
         setFormData(prev => ({
             ...prev,
@@ -68,6 +70,7 @@ export default function ViolationsPage() {
         }));
     };
 
+    // Fetching create violation API
     const handleCreate = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem("token");
@@ -77,10 +80,14 @@ export default function ViolationsPage() {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify(formData)
             });
+
             if (!response.ok) {
-                alert(error || new Error("Failed to create violation"));
-                return;
+            const errorData = await response.json();
+
+            alert(errorData.error || "Failed to update violation");
+            return;
             }
+
             const data = await response.json();
             setViolations(prev => [...prev, data]);
             setShowModal(false);
@@ -90,6 +97,7 @@ export default function ViolationsPage() {
         }
     };
 
+    // Fetching update violation API
     const handleUpdate = async (e) => {
         e.preventDefault();
         if (!selectedViolation) return;
@@ -100,10 +108,14 @@ export default function ViolationsPage() {
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify(formData)
             });
+
             if (!response.ok) {
-                alert(error || new Error("Failed to update violation"));
-                return;
+            const errorData = await response.json();
+
+            alert(errorData.error || "Failed to update violation");
+            return;
             }
+
             const updated = await response.json();
             setViolations(prev => prev.map(v => v.violation_id === selectedViolation.violation_id ? updated : v));
             setShowModal(false);
@@ -115,6 +127,7 @@ export default function ViolationsPage() {
         }
     };
 
+    // Fetching delete violation API
     const handleDelete = async () => {
         if (!selectedViolation) return;
         const token = localStorage.getItem("token");
@@ -131,6 +144,7 @@ export default function ViolationsPage() {
         }
     };
 
+    // For edit violation modal
     const openEditModal = () => {
         if (!selectedViolation) return;
         setModalMode("update");
@@ -147,6 +161,7 @@ export default function ViolationsPage() {
         setShowModal(true);
     };
 
+    // For filtering
     const filteredViolations = violations.filter(v =>
         (v.plate_number || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
         (v.license_number || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -154,12 +169,14 @@ export default function ViolationsPage() {
         (v.location || "").toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    // For proper formatting
     const formatDate = (dateStr) => {
         if (!dateStr) return 'N/A';
         try { return new Date(dateStr).toISOString().split("T")[0]; }
         catch { return 'N/A'; }
     };
 
+    // For status
     const getStatusClass = (status) => {
         switch(status) {
             case 'Paid': return 'status-paid';
@@ -169,11 +186,13 @@ export default function ViolationsPage() {
         }
     };
 
+    // Pagination
     const itemsPerPage = 5;
     const totalPages = Math.ceil(filteredViolations.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentViolations = filteredViolations.slice(startIndex, startIndex + itemsPerPage);
 
+    // Used for search 
     useEffect(() => {
         loadViolations();
         setSelectedViolation(null);
