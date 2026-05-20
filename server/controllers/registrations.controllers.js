@@ -72,10 +72,10 @@ export const createRegistration = async (req, res) => {
     } = req.body;
 
     // Validators
-    if (!registration_number || registration_number.length !== 13) {
+    if (!registration_number || registration_number.length !== 14) {
       return res.status(400).json({
         success: false,
-        error: "Registration number must be exactly 13 characters long."
+        error: "Registration number must be exactly 14 characters long."
       });
     }
 
@@ -169,10 +169,10 @@ export const updateRegistration = async (req, res) => {
     } = req.body;
 
     // Same Validators
-    if (!registration_number || registration_number.length !== 13) {
+    if (!registration_number || registration_number.length !== 14) {
       return res.status(400).json({
         success: false,
-        error: "Registration number must be exactly 13 characters long."
+        error: "Registration number must be exactly 14 characters long."
       });
     }
 

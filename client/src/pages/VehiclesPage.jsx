@@ -163,6 +163,8 @@ export default function VehiclesPage() {
 
         const token = localStorage.getItem("token");
 
+        console.log("Updating vehicle with:", formData);
+
         try {
             const response = await fetch(`/api/vehicles/${selectedVehicle.plate_number}`, {
                 method: "PATCH",
@@ -181,6 +183,8 @@ export default function VehiclesPage() {
             }
 
             const updatedVehicle = await response.json();
+
+            console.log("Updated vehicle returned:", updatedVehicle);
 
             setVehicles(prev =>
                 prev.map(vehicle =>
