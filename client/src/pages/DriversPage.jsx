@@ -26,6 +26,7 @@ export default function DriversPage() {
         expiration_date: ""
     });
 
+    // For input fields
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -33,6 +34,7 @@ export default function DriversPage() {
         });
     };
 
+    // Fetching create driver API
     const handleCreateDriver = async (e) => {
 
         e.preventDefault();
@@ -56,8 +58,10 @@ export default function DriversPage() {
             );
 
             if (!response.ok) {
-                alert(error || new Error("Failed to create driver"));
-                return;
+            const errorData = await response.json();
+
+            alert(errorData.error || "Failed to create driver");
+            return;
             }
 
             const data = await response.json();
@@ -86,6 +90,7 @@ export default function DriversPage() {
 
     };
 
+    // Fetching delete driver API
     const handleDeleteDriver = async () => {
 
         if (!selectedDriver) {
@@ -123,6 +128,7 @@ export default function DriversPage() {
 
     };
 
+    // For modal of update driver
     const handleUpdateDriver = async () => {
 
         if (!selectedDriver) {
@@ -146,6 +152,7 @@ export default function DriversPage() {
         setShowModal(true);
     };
 
+    // Fetching update driver API
     const handlePatchDriver = async (e) => {
     e.preventDefault();
 
@@ -166,8 +173,10 @@ export default function DriversPage() {
         });
 
             if (!response.ok) {
-                alert(error || new Error("Failed to create driver"));
-                return;
+            const errorData = await response.json();
+
+            alert(errorData.error || "Failed to update driver");
+            return;
             }
 
         const updatedDriver = await response.json();
@@ -186,6 +195,7 @@ export default function DriversPage() {
     }
 };
 
+    // Fetching search driver API
     const handleSearchDriver = async (e) => {
         const searchTerm = e.target.value;
 
@@ -214,6 +224,7 @@ export default function DriversPage() {
         }
     };
 
+    // Pagination and search
     const itemsPerPage = 5;
     const totalPages = Math.ceil(drivers.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -241,8 +252,8 @@ export default function DriversPage() {
                         }}
                     >Add Driver
                     </button>
-                    <button className="deleteBtn" onClick={handleDeleteDriver}> Delete Driver</button>
                     <button className="updateBtn" onClick={handleUpdateDriver}>Update Driver</button>
+                    <button className="deleteBtn" onClick={handleDeleteDriver}> Delete Driver</button>
                     </div>
                 </div>
                 {error ? (

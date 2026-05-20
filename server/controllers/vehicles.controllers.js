@@ -1,5 +1,6 @@
 import pool from '../db/pool.js';
 
+// Get all vehicles
 export const getAllVehicles = async (req, res) => {
   try {
     const conditions = [];
@@ -35,6 +36,7 @@ export const getAllVehicles = async (req, res) => {
   }
 };
 
+// Search vehicles by license num
 export const getVehiclesByLicense = async (req, res) => {
   try {
     const { license_number } = req.params;
@@ -46,16 +48,12 @@ export const getVehiclesByLicense = async (req, res) => {
   }
 };
 
+// Add vehicle
 export async function addVehicle(req, res) {
   try {
     const {plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number} = req.body;
 
-    const result = await pool.query(
-      `INSERT INTO vehicle (plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number]
-    );
-
+    // Validators
     if (license_number.length !== 13) {
       return res.status(400).json({
         success: false,
@@ -63,6 +61,7 @@ export async function addVehicle(req, res) {
       });
     }
 
+    // There are plate numbers that have less than 4 numbers
     const plateLength = plate_number.length;
 
     if (plateLength !== 4 && plateLength !== 5 && plateLength !== 7) {
@@ -107,17 +106,25 @@ export async function addVehicle(req, res) {
       });
     }
 
+    // Engine validator
     if (!engine_number || engine_number.length !== 12) {
       return res.status(400).json({
         error: "Engine number must be exactly 12 characters long."
       });
     }
 
+    // Chassis validator
     if (!chassis_number || chassis_number.length !== 12) {
       return res.status(400).json({
         error: "Chassis number must be exactly 12 characters long."
       });
     }
+
+    const result = await pool.query(
+      `INSERT INTO vehicle (plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number]
+    );
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -132,6 +139,7 @@ export async function addVehicle(req, res) {
   }
 }
 
+// Update Vehicle
 export async function updateVehicle(req, res) {
   try {
     const {plate_number: old_plate_number} = req.params;
@@ -144,8 +152,7 @@ export async function updateVehicle(req, res) {
     
     const values = [plate_number, engine_number, chassis_number, color, make, model, year, vehicle_type, license_number, old_plate_number];
 
-    const result = await pool.query(query, values);
-
+    // Same validators
     if (license_number.length !== 13) {
       return res.status(400).json({
         success: false,
@@ -209,6 +216,8 @@ export async function updateVehicle(req, res) {
       });
     }
 
+    const result = await pool.query(query, values);
+
     res.json(result.rows[0]);
 
   } catch (error) {
@@ -223,6 +232,7 @@ export async function updateVehicle(req, res) {
   }
 }
 
+// Delete Vehicle
 export async function deleteVehicle(req, res) {
   try {
     const {plate_number} = req.params;
@@ -243,6 +253,7 @@ export async function deleteVehicle(req, res) {
   }
 }
 
+// Filter for expired regs.
 export async function getExpiredRegistrations(req, res) {
   try {
     const { date } = req.query;
@@ -255,6 +266,7 @@ export async function getExpiredRegistrations(req, res) {
   }
 }
 
+// Getting the vehicles of a driver
 export async function getVehiclesByDriver(req, res) {
   try {
     const { driverName } = req.query;
@@ -269,6 +281,8 @@ export async function getVehiclesByDriver(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+
+// Search vehicle by plate num
 export async function searchVehicle(req, res) {
 
   try {
@@ -289,6 +303,7 @@ export async function searchVehicle(req, res) {
   }
 }
 
+// Find vehicle violation by location
 export async function findVehicleViolation(req, res) {
   try {
     const { location } = req.query;

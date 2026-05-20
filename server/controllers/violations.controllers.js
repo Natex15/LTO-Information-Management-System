@@ -1,5 +1,6 @@
 import pool from '../db/pool.js';
 
+// Get all violations
 export const getAllViolations = async (req, res) => {
   try {
     const conditions = [];
@@ -46,6 +47,7 @@ export const getAllViolations = async (req, res) => {
   }
 };
 
+// Getting violations by license num
 export const getViolationsByLicense = async (req, res) => {
   try {
     const { license_number } = req.params;
@@ -97,6 +99,7 @@ export const createViolation = async (req, res) => {
       [date, location, corresponding_fine_amount, apprehending_officer, violation_status || 'Unpaid', license_number, plate_number]
     );
 
+    // Validators
     if (license_number.length !== 13) {
       return res.status(400).json({
         success: false,
@@ -104,6 +107,7 @@ export const createViolation = async (req, res) => {
       });
     }
 
+    // License number validators
     const plateLength = plate_number.length;
 
     if (plateLength !== 4 && plateLength !== 5 && plateLength !== 7) {
@@ -145,6 +149,21 @@ export const createViolation = async (req, res) => {
     ) {
       return res.status(400).json({
         error: "Plate number must be 3 letters followed by 1, 2, or 4 numbers."
+      });
+    }
+
+    // Check if the vehicle belongs to the driver
+    const vehicleOwnerResult = await pool.query(
+      `SELECT * FROM vehicle 
+       WHERE plate_number = $1 
+       AND license_number = $2`,
+      [plate_number, license_number]
+    );
+
+    if (vehicleOwnerResult.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "This vehicle does not belong to the selected driver."
       });
     }
 
@@ -186,12 +205,7 @@ export const updateViolation = async (req, res) => {
 
     const values = [date, location, corresponding_fine_amount, apprehending_officer, violation_status, license_number, plate_number, violation_id];
 
-    const result = await pool.query(query, values);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Violation not found" });
-    }
-
+    // Same validators
     if (license_number.length !== 13) {
       return res.status(400).json({
         success: false,
@@ -241,6 +255,27 @@ export const updateViolation = async (req, res) => {
       return res.status(400).json({
         error: "Plate number must be 3 letters followed by 1, 2, or 4 numbers."
       });
+    }
+
+    // Check if the vehicle belongs to the driver
+    const vehicleOwnerResult = await pool.query(
+      `SELECT * FROM vehicle 
+       WHERE plate_number = $1 
+       AND license_number = $2`,
+      [plate_number, license_number]
+    );
+
+    if (vehicleOwnerResult.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "This vehicle does not belong to the selected driver."
+      });
+    }
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Violation not found" });
     }
 
     // Update violation types: delete old, insert new

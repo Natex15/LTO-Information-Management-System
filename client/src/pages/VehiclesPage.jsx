@@ -24,6 +24,7 @@ export default function VehiclesPage() {
         license_number: ""
     });
 
+    // For input fields
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -31,6 +32,7 @@ export default function VehiclesPage() {
         });
     };
 
+    // Fetching create vehicle API
     const handleCreateVehicle = async (e) => {
         e.preventDefault();
 
@@ -50,8 +52,10 @@ export default function VehiclesPage() {
             );
 
             if (!response.ok) {
-                alert(error || new Error("Failed to create vehicle"));
-                return;
+            const errorData = await response.json();
+
+            alert(errorData.error || "Failed to create vehicle");
+            return;
             }
 
             const data = await response.json();
@@ -77,6 +81,7 @@ export default function VehiclesPage() {
         }
     };
 
+    // Fetching delete vehicle API
     const handleDeleteVehicle = async () => {
         if (!selectedVehicle) {
             return;
@@ -110,6 +115,7 @@ export default function VehiclesPage() {
         }
     };
 
+    // For the modal of update vehicle
     const handleUpdateVehicle = async () => {
         if (!selectedVehicle) {
             return;
@@ -132,6 +138,7 @@ export default function VehiclesPage() {
         setShowModal(true);
     };
 
+    // Fetching update vehicle API
     const handlePatchVehicle = async (e) => {
         e.preventDefault();
 
@@ -152,8 +159,10 @@ export default function VehiclesPage() {
             });
 
             if (!response.ok) {
-                alert(error || new Error("Failed to update vehicle"));
-                return;
+            const errorData = await response.json();
+
+            alert(errorData.error || "Failed to update vehicle");
+            return;
             }
 
             const updatedVehicle = await response.json();
@@ -172,7 +181,8 @@ export default function VehiclesPage() {
         }
     };
 
-        const handleSearchVehicle = async (e) => {
+    // Fetching search vehicle API
+    const handleSearchVehicle = async (e) => {
         const searchTerm = e.target.value;
 
         try {
@@ -202,6 +212,7 @@ export default function VehiclesPage() {
         }
     };
 
+    // Pagination and search vehicle 
     const itemsPerPage = 5;
     const totalPages = Math.ceil(vehicles.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
