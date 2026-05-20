@@ -7,7 +7,7 @@ import { useData } from "../context/DataContext";
 const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
 export default function VehicleRegistrationsPage() {
-    const { registrations, setRegistrations, vehicles, loading, error } = useData();
+    const { registrations, setRegistrations, vehicles, loading, error, loadRegistrations } = useData();
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState("add");
     const [selectedRegistration, setSelectedRegistration] = useState(null);
@@ -107,7 +107,12 @@ export default function VehicleRegistrationsPage() {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` }
             });
-            if (!response.ok) throw new Error("Failed to delete registration");
+            if (!response.ok) {
+                const errorData = await response.json();
+
+                alert(errorData.error || errorData.message || "Failed to delete registration");
+                return;
+            }
             setRegistrations(prev => prev.filter(r =>
                 r.registration_number !== selectedRegistration.registration_number
             ));
@@ -167,6 +172,12 @@ export default function VehicleRegistrationsPage() {
     const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentRegistrations = filteredRegistrations.slice(startIndex, startIndex + itemsPerPage);
+
+    useEffect(() => {
+        loadRegistrations();
+        setSelectedRegistration(null);
+        setCurrentPage(1);
+    }, []);
 
     return (
         <>
